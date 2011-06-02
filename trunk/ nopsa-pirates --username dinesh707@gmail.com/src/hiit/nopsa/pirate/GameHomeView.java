@@ -105,8 +105,10 @@ public class GameHomeView extends View{
 			if ( (480<me.getY())&&(580>me.getY())&&(1004>me.getX())&&(904<me.getX())){
 				// Go Back to HOME Screen
 				Log.d(TAG, "Back to Home Screen");
-				//TODO - Save the state in a file
+				//Save the state in a file
+				GameStatus.getGameStatusObject().saveGameData(gameHomeActivity);
 				gameOn = false;
+				//Clearing Memory
 				sea1 = null;
 				ship = null;
 				System.gc();
@@ -138,7 +140,13 @@ public class GameHomeView extends View{
 		if (gameStatus.getTimeOfNextIsland() < 1){
 			gameOn = false;
 			// dismiss the alert box
-			id.dissmissAlert();
+			try{
+				id.dissmissAlert();
+				Log.d(TAG,"Alert Dissmissed");
+			}
+			catch (NullPointerException ne){
+				Log.d(TAG,"No Alert To Dissmiss");
+			}
 			// Clear memory
 			sea1 = null;
 			ship = null;
