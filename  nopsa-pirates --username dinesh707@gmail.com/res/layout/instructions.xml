@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/layout_root"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:padding="10dp"
+              android:gravity="center"
+              >
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	              android:id="@+id/layout_icon_text_title"
+	              android:orientation="horizontal"
+	              android:layout_width="wrap_content"
+	              android:layout_height="wrap_content"
+	              android:gravity="center_vertical"
+              	  >          
+    	  <ImageView android:id="@+id/image"
+               		 android:layout_width="wrap_content"
+               		 android:layout_height="wrap_content"
+               		 android:layout_marginRight="10dp"
+          />
+          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/layout_text_title"
+              android:orientation="vertical"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              >
+                  <TextView android:id="@+id/title"
+              				android:layout_width="wrap_content"
+              				android:layout_height="wrap_content"
+              				android:textColor="@android:color/white"
+              				android:padding="10dp"
+              	  />
+    			  <TextView android:id="@+id/text"
+              				android:layout_width="wrap_content"
+              				android:layout_height="wrap_content"
+              				android:textColor="@android:color/white"
+              				android:padding="10dp"
+              	  />
+              	  <CheckBox
+							android:id="@+id/checkBox"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:text="Show Me tips"
+							android:checked="true"
+				  />            
+          </LinearLayout>         	   
+	</LinearLayout>
+	<Button   android:id="@+id/ok_btn"
+         	  android:layout_width="wrap_content"
+   			  android:layout_height="wrap_content"
+    />   
+</LinearLayout>
