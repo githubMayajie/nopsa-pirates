@@ -179,5 +179,34 @@ public class GameStatus {
 		}
 	}
 	
+	public void saveGameData(Context context){
+		try {
+			FileOutputStream fos = context.openFileOutput("game.dat", Context.MODE_WORLD_WRITEABLE);
+			Log.d(TAG,"FILE OPEN FOR UPDATE");
+			String game_data = 
+					"ship_class,"+this.getShip_class()+ 
+					";weapon_class,"+this.getWeapon_class()+
+					";sails_class,"+this.getSails_class()+
+					";num_crew,"+this.getNum_crew()+
+					";coins,"+this.getCoins()+
+					";num_animals,"+this.getNum_animals()+
+					";num_slaves,"+this.getNum_slaves()+
+					";num_food,"+this.getNum_food()+
+					";total_food_score,"+this.getTotal_food_score()+
+					";lastTimeUpdated,"+this.getLastTimeUpdated()+
+					";timeOfNextIsland,"+this.getTimeOfNextIsland()+
+					";instructions,"+this.getInstructions();
+			try {
+				fos.write(game_data.getBytes());
+				fos.flush();
+				fos.close();
+				Log.d(TAG,"Gave Status Saved");
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		}
+	}
 	
 }
