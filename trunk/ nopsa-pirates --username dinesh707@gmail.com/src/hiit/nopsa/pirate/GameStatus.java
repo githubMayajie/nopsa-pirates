@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 
 
@@ -23,6 +24,8 @@ public class GameStatus {
 	private int num_slaves;
 	private int num_food;
 	
+	private ArrayList<Food> foods;
+
 	private int total_food_score;
 	
 	private long lastTimeUpdated;
@@ -45,6 +48,12 @@ public class GameStatus {
 	}
 	// ================ END of SINGLETON ====================================
 
+	public ArrayList<Food> getFoods() {
+		return foods;
+	}
+	public void setFoods(ArrayList<Food> foods) {
+		this.foods = foods;
+	}
 	
 	public boolean getInstructions() {
 		return instructions;
@@ -122,6 +131,11 @@ public class GameStatus {
 	
 	// Load Game Status
 	public void loadGameData(Context context){
+		// Loading other data
+		loadFoodData(context);
+		//TODO loadSlaveData(context);
+		//TODO loadAnimalData(context);
+		
 		String[] gameData;
 		StringBuffer strContent;
 		try {
@@ -180,7 +194,8 @@ public class GameStatus {
 	}
 	
 	public void saveGameData(Context context){
-		try {
+		// ===================== SAVE GAME DATA ==================================================
+		try{
 			FileOutputStream fos = context.openFileOutput("game.dat", Context.MODE_WORLD_WRITEABLE);
 			Log.d(TAG,"FILE OPEN FOR UPDATE");
 			String game_data = 
@@ -196,17 +211,87 @@ public class GameStatus {
 					";lastTimeUpdated,"+this.getLastTimeUpdated()+
 					";timeOfNextIsland,"+this.getTimeOfNextIsland()+
 					";instructions,"+this.getInstructions();
-			try {
-				fos.write(game_data.getBytes());
+			fos.write(game_data.getBytes());
+			fos.flush();
+			fos.close();
+			Log.d(TAG,"Gave Status Saved");
+		}catch (Exception e) {
+			Log.d(TAG, "GAME FILE SAVING FAILED");
+		}
+		// ===================== SAVE FOOD DATA ==================================================
+		try{
+			FileOutputStream fos = context.openFileOutput("food.dat", Context.MODE_WORLD_WRITEABLE);
+			Log.d(TAG,"FOOD FILE OPEN FOR UPDATE");
+			String food_data="";
+			for (int i=0;i<foods.size();i++){
+				food_data = food_data + 
+					foods.get(i).getIcon_url()+";"+
+					foods.get(i).getScore()+";"+
+					foods.get(i).getTag()+";"+
+					foods.get(i).getLast_img_marked()+"\n";
+			}
+				fos.write(food_data.getBytes());
 				fos.flush();
 				fos.close();
-				Log.d(TAG,"Gave Status Saved");
-			} catch (IOException e1) {
+				Log.d(TAG,"Food Status Saved");
+		}catch (Exception e) {
+			Log.d(TAG, "FOOD FILE SAVING FAILED");
+		}
+		// TODO
+		// ===================== SAVE ANIMAL DATA ==================================================
+		// ===================== SAVE SLAVES DATA ==================================================
+	}
+	
+	public void loadFoodData(Context context){
+		String[] foodData;
+		StringBuffer strContent;
+		try {
+			FileInputStream fis = context.openFileInput("food.dat");
+			Log.d(TAG,"FOOD FILE OPEN FOR READ");
+			int ch;
+		    strContent = new StringBuffer("");
+		    try {
+				while((ch=fis.read()) != -1)
+				    strContent.append((char)ch);
+				fis.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			Log.d(TAG,strContent.toString());
+			// Load Data to foods arraylist
+			foodData = strContent.toString().split("\n");
+			Food food;
+			foods = new ArrayList<Food>();
+			for (int i=0;i<foodData.length;i++){
+				food = new Food();
+				food.setIcon_url(foodData[i].split(";")[0]);
+				food.setScore(Integer.parseInt(foodData[i].split(";")[1]));
+				food.setTag(foodData[i].split(";")[2]);
+				food.setLast_img_marked(Integer.parseInt(foodData[i].split(";")[3]));
+				foods.add(food);
+			}
+		} catch (FileNotFoundException e) {
+			try {
+				FileOutputStream fos = context.openFileOutput("food.dat", Context.MODE_WORLD_WRITEABLE);
+				Log.d(TAG,"FOOD FILE NEWLY CREATED");
+				String food_data = 
+						"http://nopsa.hiit.fi/viewer/images/thumb_3233710827_34294f21b1_t.jpg;100;apple;0";
+				try {
+					fos.write(food_data.getBytes());
+					fos.flush();
+					fos.close();
+					this.loadFoodData(context);	// Method is called again in order to load Data
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			} catch (FileNotFoundException e1) {
 				e1.printStackTrace();
 			}
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-		}
+			e.printStackTrace();
+		}	
 	}
+	
+	//TODO public void loadSlaveData(context){}
+	//TODO public void loadAnimalData(context){}
 	
 }
