@@ -20,6 +20,7 @@ public class GameHome extends Activity{
 	    this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 	    //Remove notification bar
 	    this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+	    //Loading GameData from Files
 	    GameStatus.getGameStatusObject().loadGameData(this);
 	    gameHomeView = new GameHomeView(this,this);
 	    setContentView(gameHomeView);

@@ -1,6 +1,6 @@
 package hiit.nopsa.pirate;
 
-public class Food {
+public class Collectable {
 	
 	private String icon_url; 		// http://nopsa.hiit.fi/viewer/images/square_2675942790_32794abcf1_t.jpg
 	private String tag;				// wine

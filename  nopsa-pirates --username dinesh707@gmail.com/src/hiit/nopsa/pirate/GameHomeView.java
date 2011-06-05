@@ -24,21 +24,20 @@ public class GameHomeView extends View{
 	private Activity gameHomeActivity;
 	private final String TAG = "NOPSA-P";
 	private GameStatus gameStatus;
-	private boolean gameOn = false;
 	private Intent islandHome;
 	private Intent populateItems;
 	private InstructionDialog id;
-
+	private boolean firstTimeLaunch = true;
 	
 	public GameHomeView(Context context, Activity activity) {
 		super(context);
 		gameHomeActivity = activity;
 		gameStatus = GameStatus.getGameStatusObject();
+		gameStatus.setGameOn(false);
 	}
 
 	protected void onDraw(Canvas canvas){
-		if (sea1 == null){
-			loadBitmaps();
+		if (firstTimeLaunch){  // This will call only in the first time game loading from HomeView.
 			if (gameStatus.getInstructions()){		
 				id = new InstructionDialog();
 				id.popInstructionsDialog("Welcome to the Sea", 
@@ -47,8 +46,11 @@ public class GameHomeView extends View{
 						"food to keep your animals, slaves and crew alive. Dont forget to collect food...", 
 						"Go Sailing !!",
 						gameHomeActivity);
-			}
-			
+			}	
+			firstTimeLaunch = false;
+		}
+		if (sea1 == null){
+			loadBitmaps();
 		}
 		//==========Draw the background
 		Paint background = new Paint();
@@ -92,10 +94,11 @@ public class GameHomeView extends View{
 		canvas.drawText("Time on Sea :"+(gameStatus.getTimeOfNextIsland()/60)+":"+(gameStatus.getTimeOfNextIsland()%60), 800, 205, text_paint);
 		canvas.drawText("Food Left :"+gameStatus.getTotal_food_score(),800,230, text_paint);
 	
-		if (gameOn==false){
-			gameOn = true;
-			startGameTimeElapseThread();	
-		}
+		if (gameStatus.isGameOn()==false){
+				gameStatus.setGameOn(true);
+				startGameTimeElapseThread();	
+		}				
+		
 	}
 	
 	@Override
@@ -107,7 +110,7 @@ public class GameHomeView extends View{
 				Log.d(TAG, "Back to Home Screen");
 				//Save the state in a file
 				GameStatus.getGameStatusObject().saveGameData(gameHomeActivity);
-				gameOn = false;
+				gameStatus.setGameOn(false);
 				//Clearing Memory
 				sea1 = null;
 				ship = null;
@@ -138,32 +141,33 @@ public class GameHomeView extends View{
 	
 	private void startGameTimeElapseThread(){
 		if (gameStatus.getTimeOfNextIsland() < 1){
-			gameOn = false;
-			// dismiss the alert box
-			try{
-				id.dissmissAlert();
-				Log.d(TAG,"Alert Dissmissed");
-			}
-			catch (NullPointerException ne){
-				Log.d(TAG,"No Alert To Dissmiss");
-			}
-			// Clear memory
-			sea1 = null;
-			ship = null;
-			System.gc();
-			// Screen Change in to Island Mode
-			islandHome = new Intent(gameHomeActivity,IslandHome.class);
-    		gameHomeActivity.startActivityForResult(islandHome,231);
-		}
-		if (gameOn){
+				gameStatus.setGameOn(false);
+				// dismiss the alert box
+				try{
+					id.dissmissAlert();
+					Log.d(TAG,"Alert Dissmissed");
+				}
+				catch (NullPointerException ne){
+					Log.d(TAG,"No Alert To Dissmiss");
+				}
+				// Clear memory
+				sea1 = null;
+				ship = null;
+				System.gc();
+				// Screen Change in to Island Mode
+				islandHome = new Intent(gameHomeActivity,IslandHome.class);
+	    		gameHomeActivity.startActivityForResult(islandHome,231);											
+			}			
+		if (gameStatus.isGameOn()){
 			new Thread(new Runnable() {
 				Date d = new Date();
 				public void run() {
 						gameStatus.setTimeOfNextIsland(gameStatus.getTimeOfNextIsland()-(int)(((d.getTime()-gameStatus.getLastTimeUpdated()))/1000));
 						gameStatus.setLastTimeUpdated(d.getTime());
-						Log.d(TAG,""+d.getTime()+"ms  "+d.getTime()/1000+"sec");
-						postInvalidate(795, 150, 1024, 300);
-						android.os.SystemClock.sleep(1000); 
+						if (gameStatus.getTimeOfNextIsland() >= 1){
+							postInvalidate(795, 150, 1024, 300);
+							android.os.SystemClock.sleep(1000); 
+						}
 						startGameTimeElapseThread();
 			    }
 			}).start();
@@ -183,7 +187,7 @@ public class GameHomeView extends View{
 		gameStatus.setLastTimeUpdated(d.getTime());
 		//TODO gameStatus.setTimeOfNextIsland(x)
 		// x <- Needs to be random between 2 min to 5 min 
-		gameStatus.setTimeOfNextIsland(30);
+		gameStatus.setTimeOfNextIsland(60);
 		invalidate();
 	}
 	
