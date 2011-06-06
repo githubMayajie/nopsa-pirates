@@ -76,6 +76,7 @@ public class GameHomeView extends View{
 		canvas.drawBitmap(icons, 20, 140, icon_paint);
 		icons = BitmapFactory.decodeResource(getResources(), R.drawable.food_icon);
 		canvas.drawBitmap(icons, 20, 260, icon_paint);
+		Log.d(TAG, "Hello");
 		
 		//=========Write(Draw) Text (Ship Class & etc..)
 		Paint text_paint = new Paint();
