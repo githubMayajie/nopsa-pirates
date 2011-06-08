@@ -1,7 +1,5 @@
 package hiit.nopsa.pirate;
 
-import java.util.Date;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -74,7 +72,6 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			public void run() {
 				while(thread.isAlive()){
 					android.os.SystemClock.sleep(40); 
-					Log.d(TAG, "GLOW ALPHS -->"+glowAlpha);
 					if (!buttonsOnDrag){
 						glowAlpha = glowAlpha+4;
 						if (glowAlpha>100)
