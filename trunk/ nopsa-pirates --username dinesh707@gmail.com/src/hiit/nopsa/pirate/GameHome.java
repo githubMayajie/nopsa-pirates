@@ -11,7 +11,6 @@ public class GameHome extends Activity{
 	
 	private GameHomeView gameHomeView;
 	private final String TAG = "NOPSA-P";
-	private GameStatus gameStatus;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -29,8 +28,23 @@ public class GameHome extends Activity{
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d(TAG,"Retured from IslandScreen");
 		if (requestCode==231){
-			gameHomeView.gameResume();
+			gameHomeView.gameResumeFromIsland();
 		}
+	}
+	
+	@Override
+	public void onPause()
+	{
+		Log.d(TAG,"GameHome:Activity:onPause() CALLED");
+	    super.onPause();
+	}
+
+	@Override
+	public void onResume()
+	{
+		gameHomeView.gameResumeFromPopulateItems();
+		Log.d(TAG,"GameHome:Activity:onResume() CALLED");
+	    super.onResume();
 	}
 	
 
