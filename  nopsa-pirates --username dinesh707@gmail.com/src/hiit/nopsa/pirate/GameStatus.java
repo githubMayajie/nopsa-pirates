@@ -71,14 +71,14 @@ public class GameStatus {
 		}
 		return null;
 	}
-	public void setCollectableFromId(int id, ArrayList<Collectable> c){
+	public void addCollectableFromId(int id, Collectable c){
 		switch (id) {
 		case 0:
-			this.animals = c;
+			animals.add(c);
 		case 1:
-			this.slaves = c;
+			slaves.add(c);
 		case 2:
-			this.foods = c;
+			foods.add(c);
 		}
 	}
 	public ArrayList<Collectable> getFoods() {
