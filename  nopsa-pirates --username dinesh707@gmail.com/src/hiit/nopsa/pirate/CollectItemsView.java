@@ -12,6 +12,7 @@ import java.net.URLConnection;
 import hiit.nopsa.pirate.GameHomeView.ViewControllerThread;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -40,7 +41,8 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 	private int img_id = -1;
 	private Bitmap moving_img;
 	private int moving_imgX, moving_imgY;
-	private URL moving_url;
+	private URL moving_url = null;
+	private Bitmap icons;
 	
 	public CollectItemsView(Context context, Activity activity) {
 		super(context);
@@ -67,6 +69,10 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 		Paint back_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		back_paint.setStyle(Style.FILL);
 		canvas.drawBitmap(background, 0, 0, back_paint);
+		
+		//=========OK Icon
+		icons = BitmapFactory.decodeResource(getResources(), R.drawable.ok_icon);
+		canvas.drawBitmap(icons, 904, 480, back_paint);
 		
 		//==========Draw Collected Items Ribbon
 		Paint text_paint = new Paint();
@@ -110,16 +116,21 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 		canvas.drawBitmap(imageGenarator.images.get(23), 0, 30, back_paint);//23
 		
 		// Draw Dragging Image
-		Log.d(TAG,"Image ID in Canvas >>>"+img_id);
 		if (img_id>=0){
 			Log.d(TAG,"IMAGE is MOVING");
 			canvas.drawBitmap(moving_img, moving_imgX-37, moving_imgY-37, back_paint);//23	
 		}
 	}
 	
+	
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
 		if (me.getAction() == MotionEvent.ACTION_DOWN) {
+			if ((904<me.getX())&&(me.getX()<1004)&&(480<me.getY())&&(me.getY()<580)){
+				collectItemsActivity.finish();
+			}
+			
 			if ( 680< me.getX() && me.getX()<755 && 200<me.getY() && me.getY()<275)
 				img_id = 0;
 			if ( 637< me.getX() && me.getX()<712 && 285<me.getY() && me.getY()<360)
@@ -181,18 +192,26 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 			moving_imgY = (int) me.getY();
 		}
 		if (me.getAction() == MotionEvent.ACTION_UP) {
-			img_id = -1;
-			if (me.getY()>470){
+			if ((me.getY()>470)&&(img_id>0)&&(moving_url!=null)){
+				img_id = -1;	
+				Intent keyboardHome = new Intent(collectItemsActivity, KeyboardHome.class);
+				keyboardHome.putExtra("img_url", moving_url.toString());
+				moving_url = null;
+				keyboardHome.putExtra("type", collectableType);
+				collectItemsActivity.startActivityForResult(keyboardHome, 511);
 				//collectItemsActivity.getWindow()
 				//	.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 				//TODO pop the keyboard to enter tag
 				// After the tag is enterd create Collectable Object "c"
 				//GameStatus.getGameStatusObject().addCollectableFromId(collectableType, c)
 			}
+			img_id = -1;
+			moving_url = null;
 		}
 		return true;
 	}
 	
+
 	private void loadBitmaps(){
 		System.gc();
 		background = BitmapFactory.decodeResource(getResources(), R.drawable.blackship_background);
@@ -204,6 +223,7 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
+		_thread = new ViewControllerThread(getHolder(), this);
 		_thread.setRunning(true);
 		_thread.start();
 	}
