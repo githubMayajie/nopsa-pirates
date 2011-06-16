@@ -19,6 +19,6 @@
 		<activity 	android:name=".CollectItems"/>
 		<activity 	android:name=".PopulateItems"/>
 		<activity   android:name=".GameHome"/>
-
+		<activity   android:name=".KeyboardHome"/>
     </application>
 </manifest>
