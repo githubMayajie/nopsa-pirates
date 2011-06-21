@@ -1,5 +1,6 @@
 package hiit.nopsa.pirate;
 
+import java.security.acl.LastOwnerException;
 import java.util.Date;
 import android.app.Activity;
 import android.content.Context;
@@ -39,6 +40,11 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 	private final int EXIT = 4;
 	private final int MARKET = 5;
 	int selected_x,selected_y;
+	
+	private long animal_timer = 0;
+	private long slave_timer = 0;
+	private long crew_timer = 0;
+	
 	
 	public GameHomeView(Context context, Activity activity) {
 		super(context);
@@ -83,6 +89,9 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 		canvas.drawCircle(501, 399, 18, menu_pop_button_paint);
 		
 		if (showMenuButtons){
+			button_glow.setStyle(Style.STROKE);
+			button_glow.setStrokeWidth(20);
+			canvas.drawCircle(501, 399, 90, button_glow);
 			//============ Show Selected Button
 			if (selectedKey>0){
 				Paint button_select = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -164,17 +173,22 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 			selectedKey = 0;
 		}
 		if (me.getAction() == MotionEvent.ACTION_MOVE) {
-			angle = getAngle(501, 399, (int)me.getX(), (int)me.getY());
-			if ((angle<-1)&&(angle>-60))
-				selectedKey = FOOD;
-			else if ((angle<-60)&&(angle>-120))
-				selectedKey = SLAVE;
-			else if ((angle<-120)&&(angle>-179))
-				selectedKey = ANIMAL;
-			else if ((angle<60)&&(angle>0))
-				selectedKey = EXIT;
-			else if ((angle<179)&&(angle>120))
-				selectedKey = MARKET;
+			//TODO
+			if (cartDist(501, 399, (int)me.getX(), (int)me.getY())>70){
+				angle = getAngle(501, 399, (int)me.getX(), (int)me.getY());
+				if ((angle<-1)&&(angle>-60))
+					selectedKey = FOOD;
+				else if ((angle<-60)&&(angle>-120))
+					selectedKey = SLAVE;
+				else if ((angle<-120)&&(angle>-179))
+					selectedKey = ANIMAL;
+				else if ((angle<60)&&(angle>0))
+					selectedKey = EXIT;
+				else if ((angle<179)&&(angle>120))
+					selectedKey = MARKET;
+				else
+					selectedKey = 0;
+			}
 			else
 				selectedKey = 0;
 		}
@@ -268,15 +282,55 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 			new Thread(new Runnable() {
 				Date d = new Date();
 				public void run() {
+						//=== Update Food Usage Every Second =======
+						long time_spent = d.getTime()-gameStatus.getLastTimeUpdated();
+						Log.d(TAG,""+d.getTime()+"===="+gameStatus.getLastTimeUpdated()+"=="+time_spent);
+						animal_timer = animal_timer + time_spent;
+						crew_timer = crew_timer + time_spent;
+						slave_timer = slave_timer + time_spent;
+						Log.d(TAG,"TIMERS"+animal_timer+"=="+crew_timer+"==="+slave_timer);
+						
+						if ((crew_timer*gameStatus.getNum_crew())>((60*1000))){
+							for(int i=0;i<(crew_timer*gameStatus.getNum_crew()/(60*1000));i++){
+								gameStatus.eat_one_food();
+								Log.d(TAG,"Crew Ate Food !!");
+							}
+							crew_timer = 0;
+							if (gameStatus.getTotal_food_score()<1)
+								gameStatus.setNum_crew(Math.max(gameStatus.getNum_crew()-1,0));
+						}
+						if ((slave_timer*gameStatus.getNum_slaves())>((180*1000))){
+							for(int i=0;i<(slave_timer*gameStatus.getNum_slaves()/(180*1000));i++){
+								gameStatus.eat_one_food();
+								Log.d(TAG,"Slave Ate Food !!");
+							}
+							slave_timer = 0;
+							if (gameStatus.getTotal_food_score()<1){
+								gameStatus.setNum_slaves(Math.max(gameStatus.getNum_slaves()-1,0));
+								gameStatus.getSlaves().remove(0); // Killing Slave Due to Hunger
+							}
+						}
+						if ((animal_timer*gameStatus.getNum_animals())>((300*1000))){
+							for(int i=0;i<(animal_timer*gameStatus.getNum_animals()/(300*1000));i++){
+								gameStatus.eat_one_food();
+								Log.d(TAG,"Animal Ate Food !!");
+							}
+							animal_timer = 0;
+							if (gameStatus.getTotal_food_score()<1){
+								gameStatus.setNum_animals(Math.max(gameStatus.getNum_animals()-1,0));
+								gameStatus.getAnimals().remove(0); // Kill Animal Due to Hunger
+							}
+						}
+						//=== Update Time Every Second===============
 						gameStatus.setTimeOfNextIsland(gameStatus.getTimeOfNextIsland()-(int)(((d.getTime()-gameStatus.getLastTimeUpdated()))/1000));
 						gameStatus.setLastTimeUpdated(d.getTime());
+						//============================================
 						for (int i=0;i<10;i++){
 							glowValue = glowValue+10;
 							if (glowValue>100)
 								glowValue = 0;
 							android.os.SystemClock.sleep(100);
 						}
-						//Log.d(TAG,"startGameTimeElapseThread()===== Called from THREAD");
 						startGameTimeElapseThread();
 			    }
 			}).start();

@@ -192,7 +192,7 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 			moving_imgY = (int) me.getY();
 		}
 		if (me.getAction() == MotionEvent.ACTION_UP) {
-			if ((me.getY()>470)&&(img_id>0)&&(moving_url!=null)){
+			if ((me.getY()>470)&&(img_id>=0)&&(moving_url!=null)){
 				img_id = -1;	
 				Intent keyboardHome = new Intent(collectItemsActivity, KeyboardHome.class);
 				keyboardHome.putExtra("img_url", moving_url.toString());
