@@ -19,6 +19,7 @@ public class GameStatus {
 	private int sails_class;
 	private int num_crew;
 	private int coins;
+	private int total_food_score;
 	
 	private int num_animals;
 	private int num_slaves;
@@ -27,9 +28,7 @@ public class GameStatus {
 	private ArrayList<Collectable> foods;
 	private ArrayList<Collectable> slaves;
 	private ArrayList<Collectable> animals;
-	
-	private int total_food_score;
-	
+		
 	private long lastTimeUpdated;
 	
 	// How much time left to goto next island. This can be vary from 3 min to 10 min.
@@ -75,10 +74,13 @@ public class GameStatus {
 		switch (id) {
 		case 0:
 			animals.add(c);
+			break;
 		case 1:
 			slaves.add(c);
+			break;
 		case 2:
 			foods.add(c);
+			break;
 		}
 	}
 	public ArrayList<Collectable> getFoods() {
@@ -160,6 +162,14 @@ public class GameStatus {
 	public void setTotal_food_score(int total_food_score) {
 		this.total_food_score = total_food_score;
 	}
+	public void eat_one_food(){
+		if (foods.size()<1)
+			return;
+		this.setTotal_food_score(this.getTotal_food_score()-1);
+		foods.get(0).setScore(Math.max(foods.get(0).getScore()-1,0));
+		if (foods.get(0).getScore()<=0)
+			foods.remove(0);
+	}
 	public long getLastTimeUpdated() {
 		return lastTimeUpdated;
 	}
@@ -174,12 +184,7 @@ public class GameStatus {
 	}	
 	
 	// Load Game Status
-	public void loadGameData(Context context){
-		// Loading other data
-		loadFoodData(context);
-		loadSlaveData(context);
-		loadAnimalData(context);
-		
+	public void loadGameData(Context context){	
 		String[] gameData;
 		StringBuffer strContent;
 		try {
@@ -194,7 +199,7 @@ public class GameStatus {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			Log.d(TAG,strContent.toString());
+			Log.d(TAG,"THE GAME DATA STRING :==:==:"+strContent.toString());
 			gameData = strContent.toString().split(";");
 			// Load Data to GameStatus Object
 			gameStatus = GameStatus.getGameStatusObject();
@@ -202,25 +207,32 @@ public class GameStatus {
 			gameStatus.setWeapon_class(Integer.parseInt(gameData[1].split(",")[1]));
 			gameStatus.setSails_class(Integer.parseInt(gameData[2].split(",")[1]));
 			gameStatus.setNum_crew(Integer.parseInt(gameData[3].split(",")[1]));
-			gameStatus.setCoins(Integer.parseInt(gameData[4].split(",")[1]));
-			gameStatus.setNum_animals(Integer.parseInt(gameData[5].split(",")[1]));
-			gameStatus.setNum_slaves(Integer.parseInt(gameData[6].split(",")[1]));
-			gameStatus.setNum_food(Integer.parseInt(gameData[7].split(",")[1]));
-			gameStatus.setTotal_food_score(Integer.parseInt(gameData[8].split(",")[1]));			
-			if (Long.parseLong(gameData[9].split(",")[1])==0){
+			gameStatus.setCoins(Integer.parseInt(gameData[4].split(",")[1]));	
+			if (Long.parseLong(gameData[5].split(",")[1])==0){
 				Date d = new Date();
 				gameStatus.setLastTimeUpdated(d.getTime());
 			}
-			gameStatus.setTimeOfNextIsland(Integer.parseInt(gameData[10].split(",")[1]));
-			gameStatus.setInstructions(Boolean.parseBoolean(gameData[11].split(",")[1]));
-			
+			else {
+				gameStatus.setLastTimeUpdated(Long.parseLong((gameData[5].split(",")[1])));
+			}
+			Log.d(TAG,"Last UPDATED TIME :==:==:"+gameStatus.getLastTimeUpdated());
+			gameStatus.setTimeOfNextIsland(Integer.parseInt(gameData[6].split(",")[1]));
+			gameStatus.setInstructions(Boolean.parseBoolean(gameData[7].split(",")[1]));
+
+			//============================= Loading other data
+			gameStatus.setNum_animals(0);
+			gameStatus.setNum_food(0);
+			gameStatus.setNum_slaves(0);
+			gameStatus.setTotal_food_score(0);
+			loadFoodData(context);
+			loadSlaveData(context);
+			loadAnimalData(context);
 		} catch (FileNotFoundException e) {
 			try {
 				FileOutputStream fos = context.openFileOutput("game.dat", Context.MODE_WORLD_WRITEABLE);
 				Log.d(TAG,"FILE NEWLY CREATED");
 				String game_data = 
 						"ship_class,1;weapon_class,1;sails_class,1;num_crew,3;coins,1000;" +
-						"num_animals,0;num_slaves,0;num_food,0;total_food_score,0;" +
 						"lastTimeUpdated,0;timeOfNextIsland,45;instructions,true";
 				try {
 					fos.write(game_data.getBytes());
@@ -248,10 +260,6 @@ public class GameStatus {
 					";sails_class,"+this.getSails_class()+
 					";num_crew,"+this.getNum_crew()+
 					";coins,"+this.getCoins()+
-					";num_animals,"+this.getNum_animals()+
-					";num_slaves,"+this.getNum_slaves()+
-					";num_food,"+this.getNum_food()+
-					";total_food_score,"+this.getTotal_food_score()+
 					";lastTimeUpdated,"+this.getLastTimeUpdated()+
 					";timeOfNextIsland,"+this.getTimeOfNextIsland()+
 					";instructions,"+this.getInstructions();
@@ -322,8 +330,10 @@ public class GameStatus {
 	}
 	
 	public void loadFoodData(Context context){
+		gameStatus = GameStatus.getGameStatusObject();
 		String[] foodData;
 		StringBuffer strContent;
+		foods = new ArrayList<Collectable>();
 		try {
 			FileInputStream fis = context.openFileInput("food.dat");
 			Log.d(TAG,"FOOD FILE OPEN FOR READ");
@@ -336,18 +346,28 @@ public class GameStatus {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			Log.d(TAG,strContent.toString());
-			// Load Data to foods arraylist
-			foodData = strContent.toString().split("\n");
-			Collectable food;
-			foods = new ArrayList<Collectable>();
-			for (int i=0;i<foodData.length;i++){
-				food = new Collectable();
-				food.setIcon_url(foodData[i].split(";")[0]);
-				food.setScore(Integer.parseInt(foodData[i].split(";")[1]));
-				food.setTag(foodData[i].split(";")[2]);
-				food.setLast_img_marked(Integer.parseInt(foodData[i].split(";")[3]));
-				foods.add(food);
+			if (strContent.length()>0){	
+				Log.d(TAG,strContent.toString());
+				// Load Data to foods arraylist
+				foodData = strContent.toString().split("\n");
+				Collectable food;
+				for (int i=0;i<foodData.length;i++){
+					food = new Collectable();
+					food.setIcon_url(foodData[i].split(";")[0]);
+					food.setScore(Integer.parseInt(foodData[i].split(";")[1]));
+					food.setTag(foodData[i].split(";")[2]);
+					food.setLast_img_marked(Integer.parseInt(foodData[i].split(";")[3]));
+					foods.add(food);
+					// Set Number of Food Items 
+					gameStatus.setNum_food(gameStatus.getNum_food()+1);
+					gameStatus.setTotal_food_score((gameStatus.getTotal_food_score()+food.getScore()));
+				}
+				Log.d(TAG,"Game Score"+gameStatus.getTotal_food_score());
+			}
+			else {
+				Log.d(TAG,"NO FOOD DATA TO LOAD");
+				gameStatus.setNum_food(0);
+				gameStatus.setTotal_food_score(0);
 			}
 		} catch (FileNotFoundException e) {
 			try {
@@ -371,8 +391,10 @@ public class GameStatus {
 	}
 
 	public void loadSlaveData(Context context){
+		gameStatus = GameStatus.getGameStatusObject();
 		String[] slaveData;
 		StringBuffer strContent;
+		slaves = new ArrayList<Collectable>();
 		try {
 			FileInputStream fis = context.openFileInput("slave.dat");
 			Log.d(TAG,"SLAVE FILE OPEN FOR READ");
@@ -385,18 +407,23 @@ public class GameStatus {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			Log.d(TAG,strContent.toString());
-			// Load Data to foods arraylist
-			slaveData = strContent.toString().split("\n");
-			Collectable slave;
-			slaves = new ArrayList<Collectable>();
-			for (int i=0;i<slaveData.length;i++){
-				slave = new Collectable();
-				slave.setIcon_url(slaveData[i].split(";")[0]);
-				slave.setScore(Integer.parseInt(slaveData[i].split(";")[1]));
-				slave.setTag(slaveData[i].split(";")[2]);
-				slave.setLast_img_marked(Integer.parseInt(slaveData[i].split(";")[3]));
-				slaves.add(slave);
+			if (strContent.length()>0){	
+				Log.d(TAG,strContent.toString());
+				// Load Data to foods arraylist
+				slaveData = strContent.toString().split("\n");
+				Collectable slave;
+				for (int i=0;i<slaveData.length;i++){
+					slave = new Collectable();
+					slave.setIcon_url(slaveData[i].split(";")[0]);
+					slave.setScore(Integer.parseInt(slaveData[i].split(";")[1]));
+					slave.setTag(slaveData[i].split(";")[2]);
+					slave.setLast_img_marked(Integer.parseInt(slaveData[i].split(";")[3]));
+					slaves.add(slave);
+					gameStatus.setNum_slaves(gameStatus.getNum_slaves()+1);
+				}
+			}else{
+				Log.d(TAG,"NO SLAVE DATA TO LOAD");
+				gameStatus.setNum_slaves(0);
 			}
 		} catch (FileNotFoundException e) {
 			try {
@@ -420,8 +447,10 @@ public class GameStatus {
 	}
 
 	public void loadAnimalData(Context context){
+		gameStatus = GameStatus.getGameStatusObject();
 		String[] animalData;
 		StringBuffer strContent;
+		animals = new ArrayList<Collectable>();
 		try {
 			FileInputStream fis = context.openFileInput("animal.dat");
 			Log.d(TAG,"ANIMAL FILE OPEN FOR READ");
@@ -434,18 +463,23 @@ public class GameStatus {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			Log.d(TAG,strContent.toString());
-			// Load Data to foods arraylist
-			animalData = strContent.toString().split("\n");
-			Collectable animal;
-			animals = new ArrayList<Collectable>();
-			for (int i=0;i<animalData.length;i++){
-				animal = new Collectable();
-				animal.setIcon_url(animalData[i].split(";")[0]);
-				animal.setScore(Integer.parseInt(animalData[i].split(";")[1]));
-				animal.setTag(animalData[i].split(";")[2]);
-				animal.setLast_img_marked(Integer.parseInt(animalData[i].split(";")[3]));
-				animals.add(animal);
+			if (strContent.length()>0){	
+				Log.d(TAG,strContent.toString());
+				// Load Data to foods arraylist
+				animalData = strContent.toString().split("\n");
+				Collectable animal;
+				for (int i=0;i<animalData.length;i++){
+					animal = new Collectable();
+					animal.setIcon_url(animalData[i].split(";")[0]);
+					animal.setScore(Integer.parseInt(animalData[i].split(";")[1]));
+					animal.setTag(animalData[i].split(";")[2]);
+					animal.setLast_img_marked(Integer.parseInt(animalData[i].split(";")[3]));
+					animals.add(animal);
+					gameStatus.setNum_animals(gameStatus.getNum_animals()+1);
+				}
+			}else{
+				Log.d(TAG,"NO ANIMAL DATA TO LOAD");
+				gameStatus.setNum_animals(0);
 			}
 		} catch (FileNotFoundException e) {
 			try {
