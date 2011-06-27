@@ -83,6 +83,8 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 		text_paint.setTypeface(Typeface.SANS_SERIF);
 		int count=0;
 		for (Collectable collectable: GameStatus.getGameStatusObject().getCollectableFromId(collectableType)){
+			// TODO Only Show some number of items
+			// Becouse it will overflow the screen after 9 elements
 			canvas.drawBitmap(collectable.getIcon_bitmap(), 20+(count*90), 490 , back_paint);
 			canvas.drawText(""+collectable.getScore(),45+(count*90), 585, text_paint);
 			count = count+1;

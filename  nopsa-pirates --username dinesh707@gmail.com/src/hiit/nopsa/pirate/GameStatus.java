@@ -59,6 +59,13 @@ public class GameStatus {
 	public void setGameOn(boolean gameOn) {
 		this.gameOn = gameOn;
 	}
+	public ArrayList<Collectable> getCollectablesToMarkBoundariesById(Collectable col){
+		//col.getLast_img_marked()
+		//col.getTag()
+		
+		//TODO
+		return null;
+	}
 	public ArrayList<Collectable> getCollectableFromId(int id){
 		switch (id) {
 		case 0:
@@ -374,7 +381,7 @@ public class GameStatus {
 				FileOutputStream fos = context.openFileOutput("food.dat", Context.MODE_WORLD_WRITEABLE);
 				Log.d(TAG,"FOOD FILE NEWLY CREATED");
 				String food_data = 
-						"http://128.214.112.107/pmg/viewer/images/square_3233710827_34294f21b1_t.jpg;100;apple;0";
+						"http://128.214.112.107/pmg/viewer/images/square_3233710827_34294f21b1_t.jpg;100;+apple;0";
 				try {
 					fos.write(food_data.getBytes());
 					fos.flush();
@@ -430,7 +437,7 @@ public class GameStatus {
 				FileOutputStream fos = context.openFileOutput("slave.dat", Context.MODE_WORLD_WRITEABLE);
 				Log.d(TAG,"SLAVE FILE NEWLY CREATED");
 				String slave_data = 
-						"http://128.214.112.107/pmg/viewer/images/square_3802901392_9c0b3b9820_t.jpg;100;man;0";
+						"http://128.214.112.107/pmg/viewer/images/square_3802901392_9c0b3b9820_t.jpg;100;+man;0";
 				try {
 					fos.write(slave_data.getBytes());
 					fos.flush();
@@ -486,7 +493,7 @@ public class GameStatus {
 				FileOutputStream fos = context.openFileOutput("animal.dat", Context.MODE_WORLD_WRITEABLE);
 				Log.d(TAG,"ANIMAL FILE NEWLY CREATED");
 				String animal_data = 
-						"http://128.214.112.107/pmg/viewer/images/square_132750728_8f0342f1ac_t.jpg;100;monkey;0";
+						"http://128.214.112.107/pmg/viewer/images/square_132750728_8f0342f1ac_t.jpg;100;+monkey;0";
 				try {
 					fos.write(animal_data.getBytes());
 					fos.flush();
