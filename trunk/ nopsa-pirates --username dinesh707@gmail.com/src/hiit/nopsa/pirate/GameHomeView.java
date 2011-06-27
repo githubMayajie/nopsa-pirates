@@ -284,11 +284,9 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 				public void run() {
 						//=== Update Food Usage Every Second =======
 						long time_spent = d.getTime()-gameStatus.getLastTimeUpdated();
-						Log.d(TAG,""+d.getTime()+"===="+gameStatus.getLastTimeUpdated()+"=="+time_spent);
 						animal_timer = animal_timer + time_spent;
 						crew_timer = crew_timer + time_spent;
 						slave_timer = slave_timer + time_spent;
-						Log.d(TAG,"TIMERS"+animal_timer+"=="+crew_timer+"==="+slave_timer);
 						
 						if ((crew_timer*gameStatus.getNum_crew())>((60*1000))){
 							for(int i=0;i<(crew_timer*gameStatus.getNum_crew()/(60*1000));i++){
