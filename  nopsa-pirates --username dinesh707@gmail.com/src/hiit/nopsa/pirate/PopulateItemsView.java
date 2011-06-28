@@ -23,7 +23,7 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 	private int collectableType; //0-animal, 1-slave, 2-food
 	private PopulateItemsImageManager popImageManager = null;
 	private Collectable selectedColectable = null;
-	private Bitmap background,chest_icon,trash_icon;
+	private Bitmap background,chest_icon,trash_icon,back_icon;
 	private Bitmap bitmap=null;
 	private boolean imageDragging = false;
 	private int imgDrag_x = 0;
@@ -36,6 +36,7 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		getHolder().addCallback(this);
 		_thread = new ViewControllerThread(getHolder(), this);
 		collectableType = activity.getIntent().getExtras().getInt("type");
+		infoDialog();
 	}
 	
 	protected void onDraw(Canvas canvas){
@@ -101,9 +102,20 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 			canvas.drawCircle(1024, 300, 300, glow_paint);
 			canvas.drawBitmap(chest_icon, 750, 236, back_paint);
 			canvas.drawBitmap(trash_icon, 900, 450, back_paint);
+			canvas.drawBitmap(back_icon, 900, 22, back_paint);			
+			
 			text_paint.setTextSize(30);
 			canvas.drawText(selectedColectable.getTag().replace("+", " "), 50, 40, text_paint);
 		}
+	}
+	
+	private void infoDialog(){
+		InstructionDialog id = new InstructionDialog();
+		String title = "Arrr !";
+		String text = "Need More Food? Need to make your slaves Intelligent? OR You want to make animals worth?.." +
+				"Dont Wait.. start marking them .. if you cant find any of them throw it to green Ghost. P.S: If you " +
+				"cant find any items to mark, wait till you get into an Island. There you can capture them ..";
+		id.popInstructionsDialog(title, text, populateItemsActivity);
 	}
 		
 		
@@ -142,10 +154,13 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		}
 		if (me.getAction() == MotionEvent.ACTION_UP) {
 			if ((485<me.getY())&&(me.getY()<570)){
-				selectedColectable = GameStatus.getGameStatusObject().getCollectableFromId(collectableType).get((int) ((me.getX()-15)/90));
-				popImageManager = new PopulateItemsImageManager(
-						GameStatus.getGameStatusObject().getCollectableFromId(collectableType).get((int) ((me.getX()-15)/90)), 
-						this);
+				if (((int)((me.getX()-15)/90)) < GameStatus.getGameStatusObject().getCollectableFromId(collectableType).size()){
+					selectedColectable = GameStatus.getGameStatusObject().getCollectableFromId(collectableType).get((int) ((me.getX()-15)/90));
+					popImageManager = new PopulateItemsImageManager(
+							//GameStatus.getGameStatusObject().getCollectableFromId(collectableType).get((int) ((me.getX()-15)/90)), 
+							selectedColectable,
+							this);
+				}
 			}
 			if (squarePaint!=null){
 				if (squarePaint.getColor() == Color.RED){
@@ -171,6 +186,7 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		background = BitmapFactory.decodeResource(getResources(), R.drawable.train_background);
 		chest_icon = BitmapFactory.decodeResource(getResources(), R.drawable.chest_icon);
 		trash_icon = BitmapFactory.decodeResource(getResources(), R.drawable.trash_icon);
+		back_icon = BitmapFactory.decodeResource(getResources(), R.drawable.ship_wheel);
 	}
 	
 	private int cartDist(int x1, int y1, int x2, int y2){

@@ -24,6 +24,7 @@ public class IslandHomeView extends View {
 	public IslandHomeView(Context context, Activity activity) {
 		super(context);
 		islandHomeActivity = activity;
+		infoDialog();
 		// TODO Auto-generated constructor stub
 	}
 	
@@ -59,6 +60,14 @@ public class IslandHomeView extends View {
 		System.gc();
 		sea = BitmapFactory.decodeResource(getResources(), R.drawable.sea_island);
 		ship = BitmapFactory.decodeResource(getResources(), R.drawable.ship_look);
+	}
+	
+	private void infoDialog(){
+		InstructionDialog id = new InstructionDialog();
+		String title = "Avast! You found a deserted island...";
+		String text = "Now its time to catch some animals, collect some food and capture slaves. Remember that" +
+				" when you have more animals and more slaves they need more food.. ";
+		id.popInstructionsDialog(title, text, islandHomeActivity);
 	}
 	
 	@Override

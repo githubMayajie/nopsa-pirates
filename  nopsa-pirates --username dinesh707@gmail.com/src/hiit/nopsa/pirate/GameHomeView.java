@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Typeface;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -54,6 +55,7 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 		getHolder().addCallback(this);
 		_thread = new ViewControllerThread(getHolder(), this);
 		setFocusable(true);
+		InfoDialog();
 	}
 
 	protected void onDraw(Canvas canvas){
@@ -339,6 +341,14 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 		System.gc();
 		sea1 = BitmapFactory.decodeResource(getResources(), R.drawable.day_sea);
 		ship = BitmapFactory.decodeResource(getResources(), R.drawable.ship_look);
+	}
+	
+	private void InfoDialog(){
+		InstructionDialog id = new InstructionDialog();
+		String title = "Ahoy, Matey!";
+		String text = "Wanna be the Pirate Lord of NOPSA Sea ? Let's get ready to battle!" +
+				"Collect Coins, Hire Crew, Upgrade your ship. Keep in mind that you need food to survive...";
+		id.popInstructionsDialog(title, text, gameHomeActivity);
 	}
 	
 	public void gameResumeFromIsland(){
