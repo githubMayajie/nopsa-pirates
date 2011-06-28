@@ -50,6 +50,7 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 		getHolder().addCallback(this);
 		_thread = new ViewControllerThread(getHolder(), this);
 		collectableType = activity.getIntent().getExtras().getInt("type");
+		infoDialog();
 	}
 	
 	protected void onDraw(Canvas canvas){
@@ -217,6 +218,14 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 	private void loadBitmaps(){
 		System.gc();
 		background = BitmapFactory.decodeResource(getResources(), R.drawable.blackship_background);
+	}
+	
+	private void infoDialog(){
+		InstructionDialog id = new InstructionDialog();
+		String title = "Yo! Sailer..";
+		String text = "Drop the items you want in to the drak sea down. Later you can use them as food, " +
+				"you can train them an make them your crew, OR you can sell them at the harbor";
+		id.popInstructionsDialog(title, text, collectItemsActivity);
 	}
 
 	@Override

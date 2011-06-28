@@ -5,6 +5,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -26,35 +27,31 @@ public class PopulateItemsImageManager {
 	private Collectable collectable;
 	private View parentView;
 	private Bitmap photo_bitmap;
-	private int begining=0;
+	private int lastStartPoint = 0;
+	private int lastendPoint = 1;
 	
 	public PopulateItemsImageManager(Collectable ctb, View pv){
 		collectable = ctb;
 		parentView = pv;
 		imgOnBuffer = new ArrayList<Bitmap>();
 		urlOnBuffer = new ArrayList<URL>();
-		begining = 1;
+		lastendPoint = ctb.getLast_img_marked();
+		lastStartPoint = lastendPoint;
 		loadImagesToBuffer(1);
 		Log.d(TAG,"PopulateItemsImageManager OBJECT CREATED");
 	}
 		
 	private void loadImagesToBuffer(int stPoint){
-	    if ((begining+4)>stPoint){
-	    	// DO Nothing
-	    	// Already Images are on the buffer
-	    }else{
-	    	int temp_i = stPoint-(begining+4);
-	    	for (int i=0;i<temp_i;i++){
-	    		imgOnBuffer.remove(0);
-	    		imgOnBuffer.remove(0);
-	    		begining = begining+1;
-	    	}
-	    }
+		synchronized (this) {
+		new Thread(new Runnable() {
+			public void run() {
+		//====
 		while (imgOnBuffer.size()<=5){
 			URL url = null;
+			Log.d(TAG,"Last ENDDDDDDDDDDDDDDDDDD:::::"+lastendPoint);
 			String url_str = "http://128.214.112.107/pmg/index.php/api/search?" +
 			"apikey=1A4ECEAF1A942425&tags="+URLEncoder.encode(collectable.getTag())+"&order_attr=rank&mode=any" +
-			"&per_page=1&page="+(stPoint)+"&encoding=html&output_type=xml&yt1=Query";
+			"&per_page=1&page="+(lastendPoint)+"&encoding=html&output_type=xml&yt1=Query";
 			try {
 				url = new URL(url_str);
 				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -96,8 +93,7 @@ public class PopulateItemsImageManager {
 				matrix.postScale(scaleWidth, scaleHeight);
 				photo_bitmap = Bitmap.createBitmap(photo_bitmap,0,0,width,height,matrix,true); 
 				//========== End of Image resizing
-				stPoint=stPoint+1;
-				Log.d(TAG,"<<<<<"+stPoint);
+				lastendPoint=lastendPoint+1;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -107,14 +103,30 @@ public class PopulateItemsImageManager {
 				Log.d(TAG,"Image Added to System");
 			}
 		}
+				//===
+		    }}).start();
+		}
 	}
 	
 	public Bitmap getImagetoMarkBonderies(int stPoint){
-		loadImagesToBuffer(stPoint);
-		if ((stPoint<(begining+4)))
-			return imgOnBuffer.get(stPoint);
-		else 
-			return imgOnBuffer.get(5);
+		Log.d(TAG,">>>>>>>>>>>>>>> LastStart "+lastStartPoint+" LastEndPoint"+lastendPoint+" stPoint"+stPoint);
+		try{
+		if (lastStartPoint!=stPoint){
+			for (int i=0;i<stPoint-lastStartPoint;i++){
+				imgOnBuffer.remove(0);
+				urlOnBuffer.remove(0);
+			}
+			lastStartPoint = stPoint;
+			loadImagesToBuffer(stPoint);
+		}	
+		}catch(Exception e){}
+		
+		try{
+			return imgOnBuffer.get(0);
+		}catch (Exception e) {
+			return null;
+		}
+		
 	}
 	
 }	

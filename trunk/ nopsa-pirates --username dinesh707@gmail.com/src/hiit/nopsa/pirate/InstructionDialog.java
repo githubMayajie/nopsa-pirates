@@ -3,66 +3,58 @@ package hiit.nopsa.pirate;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Typeface;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
 
 import android.widget.TextView;
+import android.view.Window;
+import android.view.accessibility.AccessibilityEvent;
 
 public class InstructionDialog {
 	
 	private AlertDialog.Builder builder;
 	private AlertDialog alertDialog;
+	private final String TAG = "NOPSA-P";
 	
-	public void popInstructionsDialog(String title, String text, String buttonText, Activity activity){
-		
+	public void popInstructionsDialog(String title, String text, Activity activity){
 		Context mContext = activity;
 		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		
 		View layout = inflater.inflate(R.layout.instructions, (ViewGroup) activity.findViewById(R.id.layout_root));
-
+		
+		Typeface font = Typeface.createFromAsset(activity.getAssets(),"fonts/pirates.ttf" ); 
 		TextView text2 = (TextView) layout.findViewById(R.id.title);
-		text2.setTextSize(20);
+		text2.setTypeface(font);
+		text2.setTextSize(45);
 		text2.setText(title);
 
+		font = Typeface.createFromAsset(activity.getAssets(),"fonts/piecesofeight.ttf" ); 
 		TextView text1 = (TextView) layout.findViewById(R.id.text);
-		text1.setTextSize(12);
+		text1.setTypeface(font);
+		text1.setTextSize(30);
 		text1.setText(text);
-		
-		CheckBox checkBox = (CheckBox) layout.findViewById(R.id.checkBox);
-		checkBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				// TODO Auto-generated method stub
-				GameStatus.getGameStatusObject().setInstructions(isChecked);
-			}
-		});
-		
-		ImageView image = (ImageView) layout.findViewById(R.id.image);
-		image.setImageResource(R.drawable.icon);
 
-		Button btn = (Button) layout.findViewById(R.id.ok_btn);
-		btn.setTextSize(12);
-		btn.setText(buttonText);
-		btn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				alertDialog.dismiss();
-			}
-		});
+		ImageView image = (ImageView) layout.findViewById(R.id.image);
+		image.setImageResource(R.drawable.captain);
+
+		//alertDialog.dismiss();
+		//GameStatus.getGameStatusObject().setInstructions(isChecked);
 		
 		builder = new AlertDialog.Builder(mContext);
 		builder.setView(layout);
 		alertDialog = builder.create();
-		
+		alertDialog.getWindow().setGravity(Gravity.BOTTOM);
+		alertDialog.setCanceledOnTouchOutside(true);
 		alertDialog.show();
 	}
 	
