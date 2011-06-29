@@ -4,8 +4,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 public class GameHome extends Activity{
 	
@@ -27,8 +31,11 @@ public class GameHome extends Activity{
 	
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d(TAG,"Retured from IslandScreen");
-		if (requestCode==231){
+		if (requestCode==231){//Returning form ISLAND
 			gameHomeView.gameResumeFromIsland();
+		}
+		if (requestCode==233){//Returning from PORT
+			gameHomeView.gameResumeFromPort();
 		}
 	}
 	
@@ -46,6 +53,35 @@ public class GameHome extends Activity{
 		Log.d(TAG,"GameHome:Activity:onResume() CALLED");
 	    super.onResume();
 	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.options, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle item selection
+	    switch (item.getItemId()) {
+	    case R.id.sound:
+	        //TODO
+	        return true;
+	    case R.id.help:
+	    	if (GameStatus.getGameStatusObject().getInstructions()){
+	    		GameStatus.getGameStatusObject().setInstructions(false);
+	    		Toast.makeText(this,"Info Dialogs Disabled", Toast.LENGTH_SHORT).show();	
+	    	}else{
+	    		GameStatus.getGameStatusObject().setInstructions(true);
+	    		Toast.makeText(this,"Info Dialogs Enabled", Toast.LENGTH_SHORT).show();	
+	    	}
+	        return true;
+	    default:
+	        return super.onOptionsItemSelected(item);
+	    }
+	}
+	
 	
 
 }
