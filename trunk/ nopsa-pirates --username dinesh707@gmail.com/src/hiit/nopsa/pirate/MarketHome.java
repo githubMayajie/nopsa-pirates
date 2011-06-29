@@ -6,12 +6,11 @@ import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 
-public class KeyboardHome extends Activity {
-
+public class MarketHome extends Activity{
+	
+	private MarketHomeView marketHomeView;
 	private final String TAG = "NOPSA-P";
-	private KeyboardHomeView keyboardHomeView;
-	
-	
+
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState); 
 	    //Remove title bar
@@ -19,8 +18,8 @@ public class KeyboardHome extends Activity {
 	    //Remove notification bar
 	    this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 	    //Loading GameData from Files
-	    //GameStatus.getGameStatusObject().loadGameData(this);
-	    keyboardHomeView = new KeyboardHomeView(this, this);
-	    setContentView(keyboardHomeView);
+	    marketHomeView = new MarketHomeView(this,this);
+	    setContentView(marketHomeView);
 	}
+	
 }

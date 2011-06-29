@@ -27,6 +27,8 @@ public class InstructionDialog {
 	private final String TAG = "NOPSA-P";
 	
 	public void popInstructionsDialog(String title, String text, Activity activity){
+		if (!GameStatus.getGameStatusObject().getInstructions())
+			return;
 		Context mContext = activity;
 		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		

@@ -101,12 +101,12 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 			//=====Draw Next Image Icon
 			canvas.drawCircle(1024, 300, 300, glow_paint);
 			canvas.drawBitmap(chest_icon, 750, 236, back_paint);
-			canvas.drawBitmap(trash_icon, 900, 450, back_paint);
-			canvas.drawBitmap(back_icon, 900, 22, back_paint);			
+			canvas.drawBitmap(trash_icon, 900, 450, back_paint);	
 			
 			text_paint.setTextSize(30);
 			canvas.drawText(selectedColectable.getTag().replace("+", " "), 50, 40, text_paint);
 		}
+		canvas.drawBitmap(back_icon, 900, 22, back_paint);		
 	}
 	
 	private void infoDialog(){
@@ -133,6 +133,9 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 						Log.d(TAG,"Clicked on Correct Position !!!!");
 						imageDragging = true;
 				}
+			}
+			if (cartDist((int)me.getX(), (int)me.getY(), 900, 22)<92){
+				populateItemsActivity.finish();
 			}
 		}
 		if (me.getAction() == MotionEvent.ACTION_MOVE){

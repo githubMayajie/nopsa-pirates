@@ -218,25 +218,24 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 					break;
 					
 				case FOOD:
-					// TODO Collect Food
 					populateItems.putExtra("type", 2);
 		    		gameHomeActivity.startActivity(populateItems);
 					break;
 					
 				case ANIMAL:
-					// TODO Catch Animals Implementation
 					populateItems.putExtra("type", 0);
 		    		gameHomeActivity.startActivity(populateItems);
 					break;
 					
 				case SLAVE:
-					// TODO Catch Slaves
 					populateItems.putExtra("type", 1);
 		    		gameHomeActivity.startActivity(populateItems);
 					break;
 					
 				case MARKET:
 					// TODO - MArket Activity
+					Intent market = new Intent(gameHomeActivity,MarketHome.class);
+					gameHomeActivity.startActivityForResult(market, 233);
 					break;
 	
 				default:
@@ -336,6 +335,7 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 			}).start();
 		}
 	}
+
 	
 	private void loadBitmaps(){
 		System.gc();
@@ -357,6 +357,12 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 		//TODO gameStatus.setTimeOfNextIsland(x)
 		// x <- Needs to be random between 2 min to 5 min 
 		gameStatus.setTimeOfNextIsland(60);
+		_thread = new ViewControllerThread(getHolder(), this);
+		_thread.setRunning(true);
+		activityIsOnTop = true; // Child Intent terminated and currently this Activity is alive
+	}
+	
+	public void gameResumeFromPort(){
 		_thread = new ViewControllerThread(getHolder(), this);
 		_thread.setRunning(true);
 		activityIsOnTop = true; // Child Intent terminated and currently this Activity is alive
