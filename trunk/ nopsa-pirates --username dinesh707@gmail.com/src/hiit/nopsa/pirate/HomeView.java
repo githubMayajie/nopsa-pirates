@@ -58,15 +58,16 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		Paint glow = new Paint(Paint.ANTI_ALIAS_FLAG);
 		glow.setColor(Color.WHITE);
 		//glow.setAlpha((int) Math.abs(((Math.sin((glowAlpha*Math.PI)/180))*50)));
-		glow.setAlpha((int)glowAlpha);
+		glow.setAlpha((int)(glowAlpha/2));
 		if (buttonsOnDrag){
 			canvas.drawCircle(291, 88, 36, glow);
 			canvas.drawCircle(168, 285, 36, glow);
 			canvas.drawCircle(247, 503, 36, glow);
 			canvas.drawCircle(968, 547, 36, glow);
+			glow.setAlpha(128);
 			canvas.drawCircle(_x, _y, _r, glow);	
 		}
-		//==========Draw Dragging Buttons
+		//==========Draw Glowing Skull
 		if (!buttonsOnDrag){
 			Paint skull_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 			//skull_paint.setStyle(Style.FILL);
@@ -92,78 +93,52 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
-		if (me.getAction() == MotionEvent.ACTION_DOWN) {
-			if (cartDist(291, 88, (int) me.getX(), (int) me.getY()) < 40){
-				// Play game button
-				_st_x = 291;
-				_st_y = 88;
-				_button_id = 1;
-				//glowAlpha = 100;
-				buttonsOnDrag = true;
-			}
-			if (cartDist(167, 283, (int) me.getX(), (int) me.getY()) < 40){
-				// About Button
-				_st_x = 167;
-				_st_y = 283;
-				_button_id = 2;
-				//glowAlpha = 100;
-				buttonsOnDrag = true;
-			}
-			if (cartDist(247, 503, (int) me.getX(), (int) me.getY()) < 40){
-				// Hall of Fame Button
-				_st_x = 247;
-				_st_y = 503;
-				_button_id = 3;
-				//glowAlpha = 100;
-				buttonsOnDrag = true;
-			}			
-			if (cartDist(968, 544, (int) me.getX(), (int) me.getY()) < 40){
-				_st_x = 968;
-				_st_y = 544;
-				_button_id = 4;
-				//glowAlpha = 100;
-				buttonsOnDrag = true;				
-			}				
-		}
-		if (me.getAction() == MotionEvent.ACTION_UP){
-			buttonsOnDrag = false;
-			synchronized (this) {
+		if (me.getAction() == MotionEvent.ACTION_DOWN){
 			if (cartDist(515, 303, (int) me.getX(), (int) me.getY()) < 200){
-				if (_button_id==1){
-					screenAlive = false;
-					Log.d(TAG, "Game Start");
-					thread.setRunning(false);
-		    		gameHome = new Intent(mainActivity,GameHome.class);
-		    		mainActivity.startActivity(gameHome);
-		    		Toast.makeText(mainActivity,"Game Loading ..", Toast.LENGTH_SHORT).show();					
-				}
-				if (_button_id==2){
-					Log.d(TAG, "Open About Box");
-					//TODO
-					// Open About Box
-				}
-				if (_button_id==3){
-					Log.d(TAG, "Open Hall of Fame");
-					//TODO
-					// Open the hall of fame
-					// Better to open a web browser with given like to some place
-					// In that web site user will allow to do many other stuff ( MAYE BE )
-					// Such as publish to FB
-				}
-				if (_button_id==4){
-					screenAlive = false;
-					Log.d(TAG, "Exit Game");
-					mainActivity.finish();
-				}
-			}
+				buttonsOnDrag = true;
+				
 			}
 		}
 		if (me.getAction() == MotionEvent.ACTION_MOVE){
-			//glowAlpha = 100;
 			_x = (int) me.getX();
 			_y = (int) me.getY();
-			_r = Math.max(36, 200-((cartDist(_x, _y, 515, 303)*200)/cartDist(_st_x, _st_y, 515, 303)));
+			_r = (int) Math.max(36, 200-((cartDist(_x, _y, 515, 303))/(2)));
 		}
+		if (me.getAction() == MotionEvent.ACTION_UP){
+			buttonsOnDrag = false;
+			
+			if (cartDist(291, 88, (int) me.getX(), (int) me.getY()) < 40){
+				// Play game button
+				screenAlive = false;
+				Log.d(TAG, "Game Start");
+				thread.setRunning(false);
+	    		gameHome = new Intent(mainActivity,GameHome.class);
+	    		mainActivity.startActivity(gameHome);
+	    		Toast.makeText(mainActivity,"Game Loading ..", Toast.LENGTH_SHORT).show();					
+			}
+			if (cartDist(167, 283, (int) me.getX(), (int) me.getY()) < 40){
+				// About Button
+				Log.d(TAG, "Open About Box");
+				//TODO
+				// Open About Box
+
+			}
+			if (cartDist(247, 503, (int) me.getX(), (int) me.getY()) < 40){
+				// Hall of Fame Button
+				Log.d(TAG, "Open Hall of Fame");
+				//TODO
+				// Open the hall of fame
+				// Better to open a web browser with given like to some place
+				// In that web site user will allow to do many other stuff ( MAYE BE )
+				// Such as publish to FB
+			}			
+			if (cartDist(968, 544, (int) me.getX(), (int) me.getY()) < 40){
+				// Exit Button
+				screenAlive = false;
+				Log.d(TAG, "Exit Game");
+				mainActivity.finish();
+			}				
+		}		
 		return true;
 	}
 	
@@ -179,6 +154,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
+		screenAlive = true;
 		thread = new ViewControllerThread(getHolder(), this);
 		thread.setRunning(true);
 		Log.d(TAG,"Thread is Aline ==>>"+thread.isAlive());

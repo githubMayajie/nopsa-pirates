@@ -10,6 +10,7 @@ public class KeyboardHome extends Activity {
 
 	private final String TAG = "NOPSA-P";
 	private KeyboardHomeView keyboardHomeView;
+	private TagSelectorView tagSelectorView;
 	
 	
 	public void onCreate(Bundle savedInstanceState) {
@@ -20,7 +21,14 @@ public class KeyboardHome extends Activity {
 	    this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 	    //Loading GameData from Files
 	    //GameStatus.getGameStatusObject().loadGameData(this);
-	    keyboardHomeView = new KeyboardHomeView(this, this);
-	    setContentView(keyboardHomeView);
+	    
+	    //keyboardHomeView = new KeyboardHomeView(this, this);
+	    //setContentView(keyboardHomeView);
+	    tagSelectorView = new TagSelectorView(this, this);
+	    setContentView(tagSelectorView);
+	    
+	    // TODO  
+	    // this.getIntent().getExtras().getInt("img_fileid");
+	    // Use this to get the image and tags 
 	}
 }

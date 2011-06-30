@@ -31,7 +31,7 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 	private ViewControllerThread _thread;
 	private boolean activityIsOnTop = true; 
 	private boolean showMenuButtons = false;
-	private int glowValue = 0;
+	private float glowValue = 0;
 	private int angle;
 	
 	private int selectedKey;
@@ -68,8 +68,8 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 		canvas.drawRect(0, 0, getWidth(), getHeight(), background);
 		
 		Paint button_glow = new Paint(Paint.ANTI_ALIAS_FLAG);
-		button_glow.setColor(Color.WHITE);
-		button_glow.setAlpha(glowValue);
+		button_glow.setAlpha((int) glowValue);
+		Bitmap glow_center = BitmapFactory.decodeResource(getResources(), R.drawable.center_button_glow);
 		
 		try{
 			//Log.d(TAG,"DRAWSKY onDraw() Called");
@@ -80,8 +80,9 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 			//Paint ship_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 			//ship_paint.setStyle(Style.FILL);
 			canvas.drawBitmap(ship, 0, 0, sea_paint);
-			canvas.drawCircle(501, 399, 100, button_glow);
+			//canvas.drawCircle(501, 399, 100, button_glow);
 			canvas.drawBitmap(button, 416,314, sea_paint);
+			canvas.drawBitmap(glow_center, 402,302, button_glow);
 		}
 		catch (NullPointerException ne) {
 			Log.d(TAG,"sea1 or ship Bitmaps are NULL");
@@ -333,11 +334,14 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 						gameStatus.setLastTimeUpdated(d.getTime());
 						//============================================
 						for (int i=0;i<10;i++){
-							glowValue = glowValue+10;
-							if (glowValue>100)
-								glowValue = 0;
+							//glowValue = glowValue+10;
+							//if (glowValue>100)
+							//	glowValue = 0;
+							Date d = new Date();
+							glowValue = (((float) Math.sin((d.getTime()/10)*0.0174532925))*120)+120;
 							android.os.SystemClock.sleep(100);
 						}
+						//========
 						startGameTimeElapseThread();
 			    }
 			}).start();
