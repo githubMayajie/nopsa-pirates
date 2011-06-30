@@ -43,6 +43,7 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 	private int moving_imgX, moving_imgY;
 	private URL moving_url = null;
 	private Bitmap icons;
+	private int moving_imgId;
 	
 	public CollectItemsView(Context context, Activity activity) {
 		super(context);
@@ -186,6 +187,7 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 			if (img_id>=0){
 				moving_img = imageGenarator.getImageById(img_id);
 				moving_url = imageGenarator.getImageUrlById(img_id);
+				moving_imgId = imageGenarator.getImageFileId_ById(img_id);
 			}
 			moving_imgX = (int) me.getX();
 			moving_imgY = (int) me.getY();
@@ -196,12 +198,17 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 		}
 		if (me.getAction() == MotionEvent.ACTION_UP) {
 			if ((me.getY()>470)&&(img_id>=0)&&(moving_url!=null)){
-				img_id = -1;	
-				Intent keyboardHome = new Intent(collectItemsActivity, KeyboardHome.class);
-				keyboardHome.putExtra("img_url", moving_url.toString());
-				moving_url = null;
-				keyboardHome.putExtra("type", collectableType);
-				collectItemsActivity.startActivityForResult(keyboardHome, 511);
+				synchronized (this) {
+					_thread.setRunning(false);
+					img_id = -1;	
+					Intent keyboardHome = new Intent(collectItemsActivity, KeyboardHome.class);
+					keyboardHome.putExtra("img_url", moving_url.toString());
+					moving_url = null;
+					keyboardHome.putExtra("img_fileid", moving_imgId);
+					keyboardHome.putExtra("type", collectableType);
+					System.gc();
+					collectItemsActivity.startActivityForResult(keyboardHome, 511);					
+				}
 				//collectItemsActivity.getWindow()
 				//	.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 				//TODO pop the keyboard to enter tag
