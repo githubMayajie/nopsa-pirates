@@ -1,5 +1,7 @@
 package hiit.nopsa.pirate;
 
+import java.util.Date;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -22,9 +24,10 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 	private Activity mainActivity;
 	private Intent gameHome;
 	private ViewControllerThread thread;
-	private int glowAlpha;
+	private float glowAlpha;
 	private boolean buttonsOnDrag;
 	private int _x,_y,_r, _st_x, _st_y, _button_id;
+	private boolean screenAlive = false;
 	
 	public HomeView(Context context, Activity activity) {
 		super(context);
@@ -34,6 +37,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
         setFocusable(true);
         glowAlpha = 0;
         buttonsOnDrag = false;
+        screenAlive = true;
 	}
 	
 	protected void onDraw(Canvas canvas){
@@ -54,33 +58,37 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		Paint glow = new Paint(Paint.ANTI_ALIAS_FLAG);
 		glow.setColor(Color.WHITE);
 		//glow.setAlpha((int) Math.abs(((Math.sin((glowAlpha*Math.PI)/180))*50)));
-		glow.setAlpha(glowAlpha);
-		if (!buttonsOnDrag){
+		glow.setAlpha((int)glowAlpha);
+		if (buttonsOnDrag){
 			canvas.drawCircle(291, 88, 36, glow);
 			canvas.drawCircle(168, 285, 36, glow);
 			canvas.drawCircle(247, 503, 36, glow);
 			canvas.drawCircle(968, 547, 36, glow);
+			canvas.drawCircle(_x, _y, _r, glow);	
 		}
 		//==========Draw Dragging Buttons
-		if (buttonsOnDrag){
-			canvas.drawCircle(_x, _y, _r, glow);	
+		if (!buttonsOnDrag){
+			Paint skull_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+			//skull_paint.setStyle(Style.FILL);
+			skull_paint.setAlpha((int)glowAlpha);
+			Bitmap skull = BitmapFactory.decodeResource(getResources(), R.drawable.glow_skel);
+			canvas.drawBitmap(skull, 284,73, skull_paint);
 		}
 	}
 	
+	//TODO
 	private void buttonGlower(){
 		new Thread(new Runnable() {
 			public void run() {
-				while(thread.isAlive()){
+				while(screenAlive){
 					android.os.SystemClock.sleep(40); 
-					if (!buttonsOnDrag){
-						glowAlpha = glowAlpha+4;
-						if (glowAlpha>100)
-							glowAlpha = 0;
-					}
+						Date d = new Date();
+						glowAlpha = (((float) Math.sin((d.getTime()/10)*0.0174532925))*120)+120;
 				}
 			}
 		}).start();
 	}
+	
 		
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
@@ -90,7 +98,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 				_st_x = 291;
 				_st_y = 88;
 				_button_id = 1;
-				glowAlpha = 100;
+				//glowAlpha = 100;
 				buttonsOnDrag = true;
 			}
 			if (cartDist(167, 283, (int) me.getX(), (int) me.getY()) < 40){
@@ -98,7 +106,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 				_st_x = 167;
 				_st_y = 283;
 				_button_id = 2;
-				glowAlpha = 100;
+				//glowAlpha = 100;
 				buttonsOnDrag = true;
 			}
 			if (cartDist(247, 503, (int) me.getX(), (int) me.getY()) < 40){
@@ -106,21 +114,23 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 				_st_x = 247;
 				_st_y = 503;
 				_button_id = 3;
-				glowAlpha = 100;
+				//glowAlpha = 100;
 				buttonsOnDrag = true;
 			}			
 			if (cartDist(968, 544, (int) me.getX(), (int) me.getY()) < 40){
 				_st_x = 968;
 				_st_y = 544;
 				_button_id = 4;
-				glowAlpha = 100;
+				//glowAlpha = 100;
 				buttonsOnDrag = true;				
 			}				
 		}
 		if (me.getAction() == MotionEvent.ACTION_UP){
 			buttonsOnDrag = false;
+			synchronized (this) {
 			if (cartDist(515, 303, (int) me.getX(), (int) me.getY()) < 200){
 				if (_button_id==1){
+					screenAlive = false;
 					Log.d(TAG, "Game Start");
 					thread.setRunning(false);
 		    		gameHome = new Intent(mainActivity,GameHome.class);
@@ -141,13 +151,15 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 					// Such as publish to FB
 				}
 				if (_button_id==4){
+					screenAlive = false;
 					Log.d(TAG, "Exit Game");
 					mainActivity.finish();
 				}
 			}
+			}
 		}
 		if (me.getAction() == MotionEvent.ACTION_MOVE){
-			glowAlpha = 100;
+			//glowAlpha = 100;
 			_x = (int) me.getX();
 			_y = (int) me.getY();
 			_r = Math.max(36, 200-((cartDist(_x, _y, 515, 303)*200)/cartDist(_st_x, _st_y, 515, 303)));
@@ -167,7 +179,6 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		buttonGlower();
 		thread = new ViewControllerThread(getHolder(), this);
 		thread.setRunning(true);
 		Log.d(TAG,"Thread is Aline ==>>"+thread.isAlive());
@@ -199,6 +210,10 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
         }
      
         public void setRunning(boolean r) {
+        	if (r){
+        		Log.d(TAG,"Button Glower Called");
+        		buttonGlower();
+        	}
             run = r;
         }
         
