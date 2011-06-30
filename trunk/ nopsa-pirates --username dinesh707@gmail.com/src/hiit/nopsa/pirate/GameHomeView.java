@@ -21,7 +21,7 @@ import android.view.SurfaceView;
 public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 
 	private Bitmap sea1 = null;
-	private Bitmap ship, icons;
+	private Bitmap ship, icons, button;
 	private Activity gameHomeActivity;
 	private final String TAG = "NOPSA-P";
 	private GameStatus gameStatus;
@@ -67,6 +67,10 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 		background.setColor(Color.BLACK);
 		canvas.drawRect(0, 0, getWidth(), getHeight(), background);
 		
+		Paint button_glow = new Paint(Paint.ANTI_ALIAS_FLAG);
+		button_glow.setColor(Color.WHITE);
+		button_glow.setAlpha(glowValue);
+		
 		try{
 			//Log.d(TAG,"DRAWSKY onDraw() Called");
 			//==========Draw Sea & Sky & Draw Ship
@@ -76,24 +80,24 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 			//Paint ship_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 			//ship_paint.setStyle(Style.FILL);
 			canvas.drawBitmap(ship, 0, 0, sea_paint);
+			canvas.drawCircle(501, 399, 100, button_glow);
+			canvas.drawBitmap(button, 416,314, sea_paint);
 		}
 		catch (NullPointerException ne) {
 			Log.d(TAG,"sea1 or ship Bitmaps are NULL");
 		}
 		
-		Paint button_glow = new Paint(Paint.ANTI_ALIAS_FLAG);
-		button_glow.setColor(Color.WHITE);
-		button_glow.setAlpha(glowValue);
-		canvas.drawCircle(501, 399, 23, button_glow);
 		
-		Paint menu_pop_button_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
- 		menu_pop_button_paint.setColor(Color.rgb(204, 153, 51));
-		canvas.drawCircle(501, 399, 18, menu_pop_button_paint);
+		//Paint menu_pop_button_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+ 		//menu_pop_button_paint.setColor(Color.rgb(204, 153, 51));
+		//canvas.drawCircle(501, 399, 18, menu_pop_button_paint);
+		
+
 		
 		if (showMenuButtons){
-			button_glow.setStyle(Style.STROKE);
-			button_glow.setStrokeWidth(20);
-			canvas.drawCircle(501, 399, 90, button_glow);
+			//button_glow.setStyle(Style.STROKE);
+			//button_glow.setStrokeWidth(20);
+			//canvas.drawCircle(501, 399, 90, button_glow);
 			//============ Show Selected Button
 			if (selectedKey>0){
 				Paint button_select = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -155,9 +159,13 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 		canvas.drawText("Crew Size :"+gameStatus.getNum_crew(),800, 140, text_paint);
 		canvas.drawText("Coins :"+gameStatus.getCoins(),800, 165, text_paint);
 		
-		canvas.drawText("Time on Sea :"+(gameStatus.getTimeOfNextIsland()/60)+":"+(gameStatus.getTimeOfNextIsland()%60), 800, 205, text_paint);
+		//canvas.drawText("Time on Sea :"+(gameStatus.getTimeOfNextIsland()/60)+":"+(gameStatus.getTimeOfNextIsland()%60), 800, 205, text_paint);
 		canvas.drawText("Food Left :"+gameStatus.getTotal_food_score(),800,230, text_paint);
 	
+		canvas.drawText("Time on Sea :",50,50,text_paint);
+		text_paint.setTextSize(80);
+		canvas.drawText((gameStatus.getTimeOfNextIsland()/60)+":"+(gameStatus.getTimeOfNextIsland()%60), 50, 120, text_paint);
+		
 		if ((!gameStatus.isGameOn()&&(activityIsOnTop))){
 			gameStatus.setGameOn(true);	
 			//Log.d(TAG,"startGameTimeElapseThread()===== Called from ON_DRAW()");
@@ -169,7 +177,7 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
 		if (me.getAction() == MotionEvent.ACTION_DOWN) {
-			if (cartDist(501, 399, (int)me.getX(), (int)me.getY())<24){
+			if (cartDist(501, 399, (int)me.getX(), (int)me.getY())<90){
 				showMenuButtons = true;
 			}
 			selectedKey = 0;
@@ -341,6 +349,7 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 		System.gc();
 		sea1 = BitmapFactory.decodeResource(getResources(), R.drawable.day_sea);
 		ship = BitmapFactory.decodeResource(getResources(), R.drawable.ship_look);
+		button = BitmapFactory.decodeResource(getResources(), R.drawable.center_button);
 	}
 	
 	private void InfoDialog(){
