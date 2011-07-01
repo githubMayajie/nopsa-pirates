@@ -20,5 +20,6 @@
 		<activity 	android:name=".PopulateItems"/>
 		<activity   android:name=".GameHome"/>
 		<activity   android:name=".KeyboardHome"/>
+		<activity 	android:name=".MarketHome"/>
     </application>
 </manifest>
