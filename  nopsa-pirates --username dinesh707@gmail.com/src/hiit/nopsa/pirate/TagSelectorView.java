@@ -24,6 +24,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.YuvImage;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -32,6 +33,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callback {
 
@@ -41,6 +43,13 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 	private Activity keyboardHomeActivity;
 	private ArrayList<ImageTags> tags;
 	private int showfactor = 0;
+	private int selectedTag = -1;
+	private Bitmap icons;
+	private String tag_string="";
+	private int btn_state=0;
+	private int btn_lastY;
+	private URL url;
+	private boolean imageGlow = false;
 
 	
 	public TagSelectorView(Context context, Activity activity) {
@@ -56,8 +65,6 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 	private void loadImageandTags(){
 		int fileId = keyboardHomeActivity.getIntent().getExtras().getInt("img_fileid");
 		String url_str = "http://nopsa.hiit.fi/pmg/index.php/api/fileById?apikey=1A4ECEAF1A942425&fileId="+fileId+"&yt0=XML";
-		URL url;
-		Log.d(TAG,">>>>>>>>>>>>>A");
 		try {
 			//========================= Loading Tags ================================
 			url = new URL(url_str);
@@ -70,7 +77,6 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 			Document doc = db.parse(stream);
 			doc.getDocumentElement().normalize();
 			NodeList tagsList = doc.getElementsByTagName("Tag");
-			Log.d(TAG,">>>>>>>>>>>>>B");
 			tags = new ArrayList<TagSelectorView.ImageTags>();
 			ImageTags it;
 			int _x=0,_y=0,_r=0;
@@ -81,7 +87,6 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 				it = new ImageTags(tagsList.item(i).getAttributes().getNamedItem("keyword").getTextContent(),_x, _y, _r);
 				tags.add(it);
 			}
-			Log.d(TAG,">>>>>>>>>>>>>C");
 			System.gc();
 			//========================= Loading Image ===============================
 			Node node = doc.getElementsByTagName("File").item(0);
@@ -106,12 +111,31 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 		//==========Draw Image
 		Paint img_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		img_paint.setStyle(Style.FILL);
+		Paint imGlow = new Paint();
+		imGlow.setStyle(Style.FILL);
+		if (imageGlow){
+			imGlow.setColor(Color.GREEN);
+			canvas.drawRect(45,45,image.getWidth()+55,image.getHeight()+55, imGlow);
+		}
+		else if (selectedTag>=0){
+			imGlow.setColor(Color.YELLOW);
+			canvas.drawRect(45,45,image.getWidth()+55,image.getHeight()+55, imGlow);
+		}
 		canvas.drawBitmap(image, 50, 50, img_paint);
 		
 		//==========Draw Tag Bar
-		Bitmap tag_bar = BitmapFactory.decodeResource(getResources(), R.drawable.tag_bar);
+		Bitmap tag_bar = BitmapFactory.decodeResource(getResources(), R.drawable.tag_bar2);
 		Paint tag_bar_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		canvas.drawBitmap(tag_bar, 570,530, tag_bar_paint);
+		
+		//==========Draw Final Tags
+		Paint tags_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		tags_paint.setColor(Color.WHITE);
+		tags_paint.setTextSize(25);
+		Bitmap tag_icon = BitmapFactory.decodeResource(getResources(), R.drawable.tags_icon);
+		canvas.drawBitmap(tag_icon, 50, 15, tag_bar_paint);
+		canvas.drawText(tag_string.replace("+", "  "), 73, 40, tags_paint);
+		
 		
 		//==========Draw Tags
 		Paint text_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -121,38 +145,154 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 		Paint sq = new Paint();
 		sq.setStyle(Style.FILL);
 		sq.setColor(Color.WHITE);
-		sq.setAlpha(150);
-		
+
 		Paint cir = new Paint();
 		cir.setStyle(Style.FILL);
 		cir.setColor(Color.RED);
 		
-		int j = 1, i=0, k = 0;
-		if (showfactor==0){
-			j = 1;
-			k = 0;
+		if (showfactor<0){
+			//Show Ok and Back Button
+			Paint icon_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+			icons = BitmapFactory.decodeResource(getResources(), R.drawable.ok_icon);
+			canvas.drawBitmap(icons, 904, 20, icon_paint);
+			icons = BitmapFactory.decodeResource(getResources(), R.drawable.back_icon);
+			canvas.drawBitmap(icons, 904, 140, icon_paint);
+			if (btn_state>0){
+				icons = BitmapFactory.decodeResource(getResources(), R.drawable.glow_ok);
+				canvas.drawBitmap(icons, 894, 10, icon_paint);
+			}
 		}else{
-			k = showfactor-1;
-			j = 10;
-		}
-		for (i=k;i<tags.size();i=i+j){
-			canvas.drawRect( tags.get(i).x, tags.get(i).y-10, tags.get(i).x+(tags.get(i).tag.length()*15),tags.get(i).y+15, sq);
-			canvas.drawText(tags.get(i).tag, tags.get(i).x+5, tags.get(i).y+10, text_paint);
-			canvas.drawCircle(tags.get(i).x, tags.get(i).y, 5, cir);
+			int j = 1, i=0, k = 0;
+			if (showfactor==0){
+				j = 1;
+				k = 0;
+			}else{
+				k = showfactor-1;
+				j = 10;
+			}
+			for (i=k;i<tags.size();i=i+j){
+				sq.setAlpha(150);
+				canvas.drawRect( tags.get(i).x, tags.get(i).y-10, tags.get(i).x+(tags.get(i).tag.length()*15),tags.get(i).y+15, sq);
+				canvas.drawText(tags.get(i).tag, tags.get(i).x+5, tags.get(i).y+10, text_paint);
+				sq.setAlpha(250);
+				canvas.drawRect( tags.get(i).x-10, tags.get(i).y-10,tags.get(i).x,tags.get(i).y+15, sq);
+			}
 		}
 	}
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
+		// Controling Number of Tags shown in screen
 		if ((me.getAction() == MotionEvent.ACTION_MOVE)||(me.getAction() == MotionEvent.ACTION_DOWN)){
 			if ((me.getX()>570)&&(me.getY()>530)){
 				showfactor = ((int) (me.getX()-570)/34)+1;
 				if (me.getX()>920)
 					showfactor = 0;
-				Log.d(TAG,"Show Factor:"+showfactor);
+				if (me.getX()>980)
+					showfactor = -1;
 			}
 		}
+		//TODO - Selecting the Dragging Tag
+		if(me.getAction() == MotionEvent.ACTION_DOWN){
+			if ((me.getX()>550)&&(me.getY()<530)&&(showfactor>=0)){
+				int j = 1, i=0, k = 0;
+				if (showfactor==0){
+					j = 1;
+					k = 0;
+				}else{
+					k = showfactor-1;
+					j = 10;
+				}
+				for (i=k;i<tags.size();i=i+j){
+					if (cartDist((int) me.getX(), (int) me.getY(), tags.get(i).x, tags.get(i).y)<20){
+						selectedTag = i;
+						break;
+					}
+				}
+			}
+			if (showfactor<0){
+				if ((904<me.getX())&&(me.getX()<1024)&&(20<me.getY())&&(me.getY()<120)){
+					// OK Button Clicked
+					if (btn_state==0){
+						btn_state = 1;
+						btn_lastY = (int) me.getY();
+					}
+				}
+				if ((904<me.getX())&&(me.getX()<1024)&&(140<me.getY())&&(me.getY()<240)){
+					// Back Button Clicked
+					keyboardHomeActivity.finish();
+				}
+			}
+			
+		}
+		//TODO - Moving the Selected Tag
+		if(me.getAction() == MotionEvent.ACTION_MOVE){
+			if (selectedTag>=0){
+				tags.get(selectedTag).x = (int) me.getX();
+				tags.get(selectedTag).y = Math.min(520,(int) me.getY());
+				if (me.getX()<550)
+					imageGlow = true;
+			}
+			if (showfactor<0){
+				if ((btn_state==1)&&((int) me.getY()>btn_lastY)){
+					btn_state = 2;
+					btn_lastY = (int) me.getY();
+				}
+				if ((btn_state==2)&&((int) me.getY()<btn_lastY)){
+					Log.d(TAG,"OK Clicked");
+					btn_state = 0;
+					if(tag_string.length()>0){
+						Collectable c  = new Collectable();
+						c.setIcon_url(url.toString().replace("photo", "square")); 		
+						c.setTag(tag_string);
+						c.setScore(0);
+						c.setLast_img_marked(1);
+						GameStatus.getGameStatusObject().addCollectableFromId(
+								keyboardHomeActivity.getIntent().getExtras().getInt("type"), c);
+						keyboardHomeActivity.finish();
+					}
+					else{
+						Toast.makeText(keyboardHomeActivity,"No Tags Selected !",Toast.LENGTH_SHORT).show();
+					}
+				}
+			}
+		}
+		
+		if(me.getAction() == MotionEvent.ACTION_UP){
+			if ((selectedTag>=0)&&(me.getX()<550)){
+				tag_string = tag_string + "+" + tags.remove(selectedTag).tag;
+			}
+			selectedTag = -1;
+			btn_state = 0;
+			imageGlow = false;
+		}
+		
 		return true;
+	}
+	
+	// ===================== Other Control & Support "Methods & Classes"===========================
+	@Override
+	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+	}
+
+	@Override
+	public void surfaceCreated(SurfaceHolder holder) {
+		_thread.setRunning(true);
+		_thread.start();
+	}
+
+	@Override
+	public void surfaceDestroyed(SurfaceHolder holder) {
+		boolean retry = true;
+	    _thread.setRunning(false);
+	    while (retry) {
+	        try {
+	            _thread.join();
+	            retry = false;
+	        } catch (InterruptedException e) {
+	            // we will try it again and again...
+	        }
+	    }	
 	}
 	
 	private int getAngle(int x1, int y1, int x2, int y2){
@@ -189,29 +329,6 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 		return b;
 	}
 
-	@Override
-	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-	}
-
-	@Override
-	public void surfaceCreated(SurfaceHolder holder) {
-		_thread.setRunning(true);
-		_thread.start();
-	}
-
-	@Override
-	public void surfaceDestroyed(SurfaceHolder holder) {
-		boolean retry = true;
-	    _thread.setRunning(false);
-	    while (retry) {
-	        try {
-	            _thread.join();
-	            retry = false;
-	        } catch (InterruptedException e) {
-	            // we will try it again and again...
-	        }
-	    }	
-	}
 	
 	class ViewControllerThread extends Thread {
         private SurfaceHolder _surfaceHolder;
