@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 
 import android.content.Context;
@@ -77,6 +79,47 @@ public class GameStatus {
 		}
 		return null;
 	}
+	//TODO
+	public boolean removeItemFromTypeAndId(int type, int id){
+		synchronized (gameStatus) {
+			switch (type) {
+			case 0:
+				//return animals;
+				for (Iterator<Collectable> iter = animals.iterator(); iter.hasNext();) {
+				      Collectable s = iter.next();
+				      if (s.equals(animals.get(id))){
+				    	  iter.remove();
+				    	  return true;
+				      }
+				}
+				break;
+			case 1:
+				//return slaves;
+				for (Iterator<Collectable> iter = slaves.iterator(); iter.hasNext();) {
+				      Collectable s = iter.next();
+				      if (s.equals(slaves.get(id))){
+				    	  iter.remove();
+				    	  return true;
+				      }
+				}
+				break;
+			case 2:
+				//return foods;
+				for (Iterator<Collectable> iter = foods.iterator(); iter.hasNext();) {
+				      Collectable s = iter.next();
+				      if (s.equals(foods.get(id))){
+				    	  iter.remove();
+				    	  return true;
+				      }
+				}
+				break;
+			}
+		}
+	
+		return false;
+	}
+	
+	
 	public void addCollectableFromId(int id, Collectable c){
 		switch (id) {
 		case 0:

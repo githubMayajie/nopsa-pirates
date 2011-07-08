@@ -172,6 +172,7 @@ public class IslandHomeView extends SurfaceView implements SurfaceHolder.Callbac
 	protected void onDraw(Canvas canvas){
 		if (sea1 == null){
 			loadBitmaps();
+		    startGameTimeElapseThread();
 		}
 		//==========Draw the background
 		Paint background = new Paint();
@@ -258,10 +259,6 @@ public class IslandHomeView extends SurfaceView implements SurfaceHolder.Callbac
 		text_paint.setAntiAlias(true);
 		text_paint.setTextSize(20);
 		text_paint.setTypeface(Typeface.SANS_SERIF);
-		
-		if (activityIsOnTop){
-		    startGameTimeElapseThread();
-		}				
 		
 	}
 	
