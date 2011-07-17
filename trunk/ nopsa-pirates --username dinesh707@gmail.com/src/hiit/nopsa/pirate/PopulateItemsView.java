@@ -44,9 +44,11 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 	private ArrayList<int[]> boundary = null; 
 	private String imageId = null;
 	private float scaledVal;
+	private GameStatus gameStatus = null; 
 	
 	public PopulateItemsView(Context context, Activity activity) {
 		super(context);
+		gameStatus = GameStatus.getGameStatusObject();
 		imgDrag_x = 0;
 		populateItemsActivity = activity;
 		getHolder().addCallback(this);
@@ -82,7 +84,7 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		glow_paint.setColor(Color.WHITE);
 		glow_paint.setAlpha(100);
 		int count=0;
-		for (Collectable collectable: GameStatus.getGameStatusObject().getCollectableFromId(collectableType)){
+		for (Collectable collectable: gameStatus.getCollectableFromId(collectableType)){
 			// TODO Only Show some number of items
 			// Becouse it will overflow the screen after 9 elements
 			canvas.drawRect(15+(count*90), 485, 100+(count*90), 570, glow_paint);
@@ -90,18 +92,6 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 			canvas.drawText(""+collectable.getScore(),45+(count*90), 585, text_paint);
 			count = count+1;
     	}
-		//==========Draw Items to Be Marked Ribbon
-		// NOT TODO: I dont think showing next images is nessasary. Since I commented that part
-		/*
-		if (popImageManager!=null){
-			count = 0;
-			for (Bitmap images: popImageManager.getRelatedImagesByStartPoint(selectedColectable.getLast_img_marked())){			
-				canvas.drawRect(924, 15+(count*90), 1019, 100+(count*90), glow_paint);	
-				canvas.drawBitmap(images, 929, 20+(count*90) , back_paint);
-				count = count+1;
-			}
-		}
-		*/
 		//==========Draw Image to mark boundaries
 		if (popImageManager!=null){
 			bitmap = popImageManager.getImagetoMarkBonderies(selectedColectable.getLast_img_marked());
@@ -118,14 +108,15 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 				canvas.drawBitmap(bitmap,50+imgDrag_x,50, back_paint);
 			}
 			//=====Draw Next Image Icon
-			canvas.drawCircle(1024, 300, 300, glow_paint);
-			canvas.drawBitmap(chest_icon, 750, 236, back_paint);
-			canvas.drawBitmap(trash_icon, 900, 450, back_paint);	
+			canvas.drawCircle(850, 120, 70, glow_paint);
+			canvas.drawBitmap(chest_icon, 800, 70, back_paint);
+			canvas.drawCircle(850, 320, 70, glow_paint);
+			canvas.drawBitmap(trash_icon, 800, 270, back_paint);	
 			
 			text_paint.setTextSize(30);
 			canvas.drawText(selectedColectable.getTag().replace("+", " "), 50, 40, text_paint);
-		}
-		canvas.drawBitmap(back_icon, 900, 22, back_paint);		
+		}		
+		canvas.drawBitmap(back_icon, 904, 480, back_paint);
 		
 		//==========Draw Boundary
 		Paint boandary_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -140,7 +131,39 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 			//Log.d(TAG,""+boundary.size());
 			
 		}
-	}
+		
+		//============Draw Game Status BOX========
+		text_paint.setTextSize(15);
+		int temp_t = gameStatus.getTimeOfNextIsland();
+		text_paint.setColor(Color.BLACK);
+		//canvas.drawRect(600,480,880,580, glow_paint);
+		Bitmap backPaper = BitmapFactory.decodeResource(getResources(), R.drawable.game_status_back);
+		canvas.drawBitmap(backPaper, 580, 455, back_paint);
+		glow_paint.setColor(Color.YELLOW);//glow_paint.setColor(Color.rgb(255-(temp_t/600)*255, (temp_t/600)*255, 0));
+		canvas.drawRect(605,485,605+(temp_t*270/600),510, glow_paint);
+		canvas.drawText("Time On Sea", 610, 505, text_paint);
+		int food_t;
+		if ((gameStatus.getNum_animals()+gameStatus.getNum_slaves()*2+gameStatus.getNum_crew()*5)==0)
+			food_t = 25;
+		else{
+			food_t = gameStatus.getTotal_food_score() / (gameStatus.getNum_animals()+gameStatus.getNum_slaves()*2+gameStatus.getNum_crew()*5);
+			food_t = Math.min(food_t, 25);
+		}
+		glow_paint.setColor(Color.rgb(255-(food_t/25)*255, (food_t/25)*255, 0));
+		canvas.drawRect(605,510,605+(food_t*270/25),535, glow_paint);
+		canvas.drawText("Food",610,530,text_paint);
+		text_paint.setTextSize(25);
+		Bitmap small = BitmapFactory.decodeResource(getResources(), R.drawable.crew_small);
+		canvas.drawBitmap(small, 610, 545 , back_paint);
+		canvas.drawText(""+gameStatus.getNum_crew(),640,570,text_paint);
+		small = BitmapFactory.decodeResource(getResources(), R.drawable.slave_small);
+		canvas.drawBitmap(small, 690, 545 , back_paint);
+		canvas.drawText(""+gameStatus.getNum_crew(),720,570,text_paint);
+		small = BitmapFactory.decodeResource(getResources(), R.drawable.animal_small);
+		canvas.drawBitmap(small, 770, 545 , back_paint);
+		canvas.drawText(""+gameStatus.getNum_crew(),800,570,text_paint);
+		
+	}//======================================================== END OF ON_DRAW()
 	
 	private void infoDialog(){
 		InstructionDialog id = new InstructionDialog();
@@ -154,7 +177,7 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		
 	
 	public boolean onTouchEvent(MotionEvent me) {
-				if (me.getAction() == MotionEvent.ACTION_DOWN){
+		if (me.getAction() == MotionEvent.ACTION_DOWN){
 			if (bitmap!=null){
 				if (((bitmap.getWidth()+50)<me.getX())&&
 						(me.getX()<(bitmap.getWidth()+100))&&
@@ -165,7 +188,7 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 						imageDragging = true;
 				}
 			}
-			if (cartDist((int)me.getX(), (int)me.getY(), 900, 22)<92){
+			if (cartDist((int)me.getX(), (int)me.getY(), 904, 580)<75){
 				populateItemsActivity.finish();
 			}
 			//boundry marking START
@@ -179,21 +202,17 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		if (me.getAction() == MotionEvent.ACTION_MOVE){
 			if (imageDragging){
 				imgDrag_x = (int)me.getX()-bitmap.getWidth()-50;
-				if (cartDist((int)me.getX(), (int)me.getY(), 814, 300)<92){
-					//TODO Color the box around GREEN
+				if (cartDist((int)me.getX(), (int)me.getY(), 850, 120)<75){
 					squarePaint = new Paint();
 					squarePaint.setColor(Color.GREEN);
-					//squarePaint.setAlpha(100);
 				}
-				if (cartDist((int)me.getX(), (int)me.getY(), 964, 514)<92){
-					//TODO Color the box around RED
+				if (cartDist((int)me.getX(), (int)me.getY(), 850, 320)<75){
 					squarePaint = new Paint();
 					squarePaint.setColor(Color.RED);
-					//squarePaint.setAlpha(100);
 				}				
 			}
 			if (boundaryMarkingOn){
-				//TODO Bounadry Marking
+				//Bounadry Marking
 				int[] a = new int[2];
 				a[0] = (int) me.getX();
 				a[1] = (int) me.getY();				
@@ -215,8 +234,8 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		}
 		if (me.getAction() == MotionEvent.ACTION_UP) {
 			if ((485<me.getY())&&(me.getY()<570)){
-				if (((int)((me.getX()-15)/90)) < GameStatus.getGameStatusObject().getCollectableFromId(collectableType).size()){
-					selectedColectable = GameStatus.getGameStatusObject().getCollectableFromId(collectableType).get((int) ((me.getX()-15)/90));
+				if (((int)((me.getX()-15)/90)) < gameStatus.getCollectableFromId(collectableType).size()){
+					selectedColectable = gameStatus.getCollectableFromId(collectableType).get((int) ((me.getX()-15)/90));
 					popImageManager = new PopulateItemsImageManager(
 							//GameStatus.getGameStatusObject().getCollectableFromId(collectableType).get((int) ((me.getX()-15)/90)), 
 							selectedColectable,
@@ -252,7 +271,7 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 						// Add a point to item
 						selectedColectable.setScore(selectedColectable.getScore()+1); 
 						// Add a point to Total food score
-						GameStatus.getGameStatusObject().setTotal_food_score(GameStatus.getGameStatusObject().getTotal_food_score()+1);
+						gameStatus.setTotal_food_score(gameStatus.getTotal_food_score()+1);
 					}catch(Exception e){
 						Log.d(TAG,"Data Updating into Border DB Failed!");
 						e.printStackTrace();
@@ -273,7 +292,7 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		background = BitmapFactory.decodeResource(getResources(), R.drawable.train_background);
 		chest_icon = BitmapFactory.decodeResource(getResources(), R.drawable.chest_icon);
 		trash_icon = BitmapFactory.decodeResource(getResources(), R.drawable.trash_icon);
-		back_icon = BitmapFactory.decodeResource(getResources(), R.drawable.ship_wheel);
+		back_icon = BitmapFactory.decodeResource(getResources(), R.drawable.back_icon);
 	}
 	
 	private int cartDist(int x1, int y1, int x2, int y2){
