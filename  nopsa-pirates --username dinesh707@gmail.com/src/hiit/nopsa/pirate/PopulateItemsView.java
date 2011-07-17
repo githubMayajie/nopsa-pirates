@@ -1,5 +1,17 @@
 package hiit.nopsa.pirate;
 
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
 import hiit.nopsa.pirate.CollectItemsView.ViewControllerThread;
 import android.app.Activity;
 import android.content.Context;
@@ -28,10 +40,14 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 	private boolean imageDragging = false;
 	private int imgDrag_x = 0;
 	private Paint squarePaint = null;
-	
+	private boolean boundaryMarkingOn = false;
+	private ArrayList<int[]> boundary = null; 
+	private String imageId = null;
+	private float scaledVal;
 	
 	public PopulateItemsView(Context context, Activity activity) {
 		super(context);
+		imgDrag_x = 0;
 		populateItemsActivity = activity;
 		getHolder().addCallback(this);
 		_thread = new ViewControllerThread(getHolder(), this);
@@ -48,10 +64,11 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		back.setColor(Color.GREEN);
 		canvas.drawRect(0, 0, getWidth(), getHeight(), back);
 		
-		//==========Draw Backgrund Image
+		//==========Draw Background Image
 		Paint back_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		back_paint.setStyle(Style.FILL);
 		canvas.drawBitmap(background, 0, 0, back_paint);
+		
 		
 		//==========Draw Collected Items Ribbon
 		Paint text_paint = new Paint();
@@ -88,6 +105,8 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		//==========Draw Image to mark boundaries
 		if (popImageManager!=null){
 			bitmap = popImageManager.getImagetoMarkBonderies(selectedColectable.getLast_img_marked());
+			imageId = popImageManager.getFileIdOfImageToMarkBonderies(selectedColectable.getLast_img_marked());
+			scaledVal = popImageManager.getScaleFactorOfImageToMarkBonderies(selectedColectable.getLast_img_marked());
 			if ((bitmap!=null)&&(!imageDragging)){
 				canvas.drawRect(bitmap.getWidth()+50, 50, bitmap.getWidth()+100, bitmap.getHeight()+50, glow_paint);
 				canvas.drawBitmap(bitmap, 50,50, back_paint);
@@ -107,6 +126,20 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 			canvas.drawText(selectedColectable.getTag().replace("+", " "), 50, 40, text_paint);
 		}
 		canvas.drawBitmap(back_icon, 900, 22, back_paint);		
+		
+		//==========Draw Boundary
+		Paint boandary_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		boandary_paint.setStyle(Style.FILL);
+		boandary_paint.setColor(Color.GREEN);
+		if ((boundary!=null)&&(imgDrag_x==0)){
+			//Log.d(TAG,"Boundary is NOT NULL");
+			for(int i=0;i<boundary.size();i++){
+				//Log.d(TAG,"X: "+boundary.get(i)[0]+" Y: "+boundary.get(i)[1]);
+				canvas.drawCircle(boundary.get(i)[0], boundary.get(i)[1], 5, boandary_paint);
+			}
+			//Log.d(TAG,""+boundary.size());
+			
+		}
 	}
 	
 	private void infoDialog(){
@@ -119,17 +152,15 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 	}
 		
 		
-	//canvas.drawRect(15+(count*90), 485, 100+(count*90), 570, glow_paint);
+	
 	public boolean onTouchEvent(MotionEvent me) {
-		// Rect(bitmap.getWidth()+50, 50, bitmap.getWidth()+100, bitmap.getHeight()+50,)
-		
-		if (me.getAction() == MotionEvent.ACTION_DOWN){
+				if (me.getAction() == MotionEvent.ACTION_DOWN){
 			if (bitmap!=null){
 				if (((bitmap.getWidth()+50)<me.getX())&&
 						(me.getX()<(bitmap.getWidth()+100))&&
 						(50<me.getY())&&
 						(me.getY()<(bitmap.getHeight()+50))){
-						// TODO Start Moving the Image when player is dragging towards "chest" or "bin"
+						//Start Moving the Image when player is dragging towards "chest" or "bin"
 						Log.d(TAG,"Clicked on Correct Position !!!!");
 						imageDragging = true;
 				}
@@ -137,6 +168,13 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 			if (cartDist((int)me.getX(), (int)me.getY(), 900, 22)<92){
 				populateItemsActivity.finish();
 			}
+			//boundry marking START
+			if (bitmap!=null)
+				if ((50<me.getX())&&(me.getX()<(50+bitmap.getWidth()))&&(50<me.getY())&&(me.getY()<(50+bitmap.getWidth()))){
+					boundary = new ArrayList<int[]>();
+					boundaryMarkingOn = true;
+					Log.d(TAG,"Image Boundary Marking Started");
+				}
 		}
 		if (me.getAction() == MotionEvent.ACTION_MOVE){
 			if (imageDragging){
@@ -153,6 +191,26 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 					squarePaint.setColor(Color.RED);
 					//squarePaint.setAlpha(100);
 				}				
+			}
+			if (boundaryMarkingOn){
+				//TODO Bounadry Marking
+				int[] a = new int[2];
+				a[0] = (int) me.getX();
+				a[1] = (int) me.getY();				
+				if (a[0]<50)
+					a[0] = 50;
+				if (a[0]>(50+bitmap.getWidth()))
+					a[0] = 50+bitmap.getWidth();
+				if (a[1]<50)
+					a[1] = 50;
+				if (a[1]>(50+bitmap.getHeight()))
+					a[1] = 50+bitmap.getHeight();
+				
+				if (boundary.size()==0)
+					boundary.add(a);
+				else if (cartDist(boundary.get(boundary.size()-1)[0], boundary.get(boundary.size()-1)[1], a[0], a[1])>5)
+					boundary.add(a);
+				
 			}
 		}
 		if (me.getAction() == MotionEvent.ACTION_UP) {
@@ -175,11 +233,37 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 					//TODO -- Upload Image Bounderies to server
 					selectedColectable.setLast_img_marked(selectedColectable.getLast_img_marked()+1);
 					Log.d(TAG,"Image Droped on GREEN "+selectedColectable.getLast_img_marked());
+					//==== Update Boundaries to Server=====================
+					String boundary_str = "";
+					for (int i=0;i<boundary.size();i++){
+						boundary_str = boundary_str + (boundary.get(i)[0]/scaledVal)+","+(boundary.get(i)[1]/scaledVal)+";";
+					}
+					String url_str = "http://192.168.100.14/nopsa_game/boundary_update.php?" +
+					"id="+imageId+"&boundary="+boundary_str;
+					try {
+						URL url = new URL(url_str);
+						Log.d(TAG,"URL "+url_str);
+						HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+						connection.setRequestMethod("GET");
+						connection.connect();
+						InputStream stream = connection.getInputStream();
+						Log.d(TAG,"===============UPDATE SUCESSFULL");
+						Log.d(TAG,stream.toString());
+						// Add a point to item
+						selectedColectable.setScore(selectedColectable.getScore()+1); 
+						// Add a point to Total food score
+						GameStatus.getGameStatusObject().setTotal_food_score(GameStatus.getGameStatusObject().getTotal_food_score()+1);
+					}catch(Exception e){
+						Log.d(TAG,"Data Updating into Border DB Failed!");
+						e.printStackTrace();
+					}
+					boundary = null;
 				}
 			}
 			imgDrag_x = 0;
 			imageDragging = false;
 			squarePaint = null;
+			boundaryMarkingOn = false;
 		}
 		return true;
 	}
