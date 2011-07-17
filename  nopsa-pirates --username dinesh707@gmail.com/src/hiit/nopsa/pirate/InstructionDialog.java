@@ -27,6 +27,7 @@ public class InstructionDialog {
 	private final String TAG = "NOPSA-P";
 	
 	public void popInstructionsDialog(String title, String text, Activity activity){
+		Log.d(TAG,"Instruction Dialog Called, But game status is ::"+GameStatus.getGameStatusObject().getInstructions());
 		if (!GameStatus.getGameStatusObject().getInstructions())
 			return;
 		Context mContext = activity;

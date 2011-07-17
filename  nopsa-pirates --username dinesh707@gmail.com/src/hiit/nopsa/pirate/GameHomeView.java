@@ -13,10 +13,12 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Typeface;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 
@@ -25,7 +27,7 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 	private Activity gameHomeActivity;
 	private final String TAG = "NOPSA-P";
 	private GameStatus gameStatus;
-	private Intent islandHome;
+	private Intent islandHome = null;
 	private Intent populateItems;
 	private InstructionDialog id;
 	private ViewControllerThread _thread;
@@ -162,7 +164,18 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 		
 		//canvas.drawText("Time on Sea :"+(gameStatus.getTimeOfNextIsland()/60)+":"+(gameStatus.getTimeOfNextIsland()%60), 800, 205, text_paint);
 		canvas.drawText("Food Left :"+gameStatus.getTotal_food_score(),800,230, text_paint);
-	
+		//==========NEW
+		int food_t;
+		if ((gameStatus.getNum_animals()+gameStatus.getNum_slaves()*2+gameStatus.getNum_crew()*5)==0)
+			food_t = 25;
+		else{
+			food_t = gameStatus.getTotal_food_score() / (gameStatus.getNum_animals()+gameStatus.getNum_slaves()*2+gameStatus.getNum_crew()*5);
+			food_t = Math.min(food_t, 25);
+		}
+		Paint glow_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		glow_paint.setColor(Color.rgb(255-((food_t/25)*255), (food_t/25)*255, 0));
+		canvas.drawRect(800,240,800+(food_t*220/25),265, glow_paint);
+		//END OF NEW
 		canvas.drawText("Time on Sea :",50,50,text_paint);
 		text_paint.setTextSize(80);
 		canvas.drawText(
@@ -174,7 +187,7 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 			gameStatus.setGameOn(true);	
 			//Log.d(TAG,"startGameTimeElapseThread()===== Called from ON_DRAW()");
 		    startGameTimeElapseThread();
-		}				
+		}
 		
 	}
 	
@@ -231,7 +244,9 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 					
 				case FOOD:
 					populateItems.putExtra("type", 2);
-		    		gameHomeActivity.startActivity(populateItems);
+		    		//gameHomeActivity.startActivity(populateItems);
+					//TODO CHANGED !!
+					gameHomeActivity.startActivityForResult(populateItems, 972);
 					break;
 					
 				case ANIMAL:
@@ -268,6 +283,26 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 		 return (int) Math.sqrt((Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2)));
 	}
 	
+	private void alertDeath(final String s){
+		//TODO
+		
+		Handler mHandler = new Handler(Looper.getMainLooper());
+		mHandler.post(new Runnable() {
+	          public void run() {
+		        	InstructionDialog id = new InstructionDialog();
+		      		String title = "Arrr Sailor !!";
+		      		String text = s;
+		      		if (gameStatus.getInstructions())
+		      			id.popInstructionsDialog(title, text, gameHomeActivity);
+		      		else{
+		      			gameStatus.setInstructions(true);
+		      			id.popInstructionsDialog(title, text, gameHomeActivity);
+		      			gameStatus.setInstructions(false);
+		      		}
+	          }
+	       });
+	}
+	
 	private synchronized void startGameTimeElapseThread(){
 		if (gameStatus.getTimeOfNextIsland() < 1){
 			activityIsOnTop = false;
@@ -288,8 +323,13 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 			System.gc();
 			// Screen Change in to Island Mode
 			Log.d(TAG,"STARTING THE INTENT 'gameHomeActivity'..");
+			//populateItems.
+			gameHomeActivity.finishActivity(972); // Finishing PopulateItems Activity
+			//TODO BUG : When it returns from Populate items it some times cre two island home activities.
+			Log.d(TAG, "ISLAND HOME T OR F --->>"+(islandHome==null));
 			islandHome = new Intent(gameHomeActivity,IslandHome.class);
-			gameHomeActivity.startActivityForResult(islandHome,231);															
+			gameHomeActivity.startActivityForResult(islandHome,231);
+			
 		}
 		if (gameStatus.isGameOn()){
 			new Thread(new Runnable() {
@@ -307,8 +347,11 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 								Log.d(TAG,"Crew Ate Food !!");
 							}
 							crew_timer = 0;
-							if (gameStatus.getTotal_food_score()<1)
+							if (gameStatus.getTotal_food_score()<1){
+								if (gameStatus.getNum_crew()>0)
+									alertDeath("Crew Member died cause there is NO FOOD !!");
 								gameStatus.setNum_crew(Math.max(gameStatus.getNum_crew()-1,0));
+							}
 						}
 						if ((slave_timer*gameStatus.getNum_slaves())>((180*1000))){
 							for(int i=0;i<(slave_timer*gameStatus.getNum_slaves()/(180*1000));i++){
@@ -317,6 +360,8 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 							}
 							slave_timer = 0;
 							if (gameStatus.getTotal_food_score()<1){
+								if (gameStatus.getNum_slaves()>0)
+									alertDeath("Slave died cause there is NO FOOD !!");
 								gameStatus.setNum_slaves(Math.max(gameStatus.getNum_slaves()-1,0));
 								gameStatus.getSlaves().remove(0); // Killing Slave Due to Hunger
 							}
@@ -328,6 +373,8 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 							}
 							animal_timer = 0;
 							if (gameStatus.getTotal_food_score()<1){
+								if (gameStatus.getNum_animals()>0)
+									alertDeath("Animal died cause ther is NO FOOD !!");
 								gameStatus.setNum_animals(Math.max(gameStatus.getNum_animals()-1,0));
 								gameStatus.getAnimals().remove(0); // Kill Animal Due to Hunger
 							}
