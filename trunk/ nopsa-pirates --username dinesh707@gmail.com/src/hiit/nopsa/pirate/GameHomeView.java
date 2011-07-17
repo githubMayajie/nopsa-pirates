@@ -165,7 +165,10 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 	
 		canvas.drawText("Time on Sea :",50,50,text_paint);
 		text_paint.setTextSize(80);
-		canvas.drawText((gameStatus.getTimeOfNextIsland()/60)+":"+(gameStatus.getTimeOfNextIsland()%60), 50, 120, text_paint);
+		canvas.drawText(
+				String.format("%d:%02d", 
+						(gameStatus.getTimeOfNextIsland()/60),
+						(gameStatus.getTimeOfNextIsland()%60)), 50, 120, text_paint);
 		
 		if ((!gameStatus.isGameOn()&&(activityIsOnTop))){
 			gameStatus.setGameOn(true);	

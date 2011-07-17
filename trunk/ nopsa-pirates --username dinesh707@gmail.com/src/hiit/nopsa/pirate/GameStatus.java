@@ -227,6 +227,8 @@ public class GameStatus {
 		this.lastTimeUpdated = lastTimeUpdated;
 	}
 	public int getTimeOfNextIsland() {
+		if (timeOfNextIsland<0)
+			return 0;
 		return timeOfNextIsland;
 	}
 	public void setTimeOfNextIsland(int timeOfNextIsland) {

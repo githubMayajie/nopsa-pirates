@@ -24,17 +24,24 @@ public class PopulateItemsImageManager {
 	private final String TAG = "NOPSA-P";
 	private ArrayList<Bitmap> imgOnBuffer = null;
 	private ArrayList<URL> urlOnBuffer = null;	
+	private ArrayList<String> fileIdOnBuffer = null;
+	private ArrayList<Float> scaledValues = null;
 	private Collectable collectable;
 	private View parentView;
 	private Bitmap photo_bitmap;
 	private int lastStartPoint = 0;
 	private int lastendPoint = 1;
+	private String fileId = "";
+	private float scaledValue;
+	
 	
 	public PopulateItemsImageManager(Collectable ctb, View pv){
 		collectable = ctb;
 		parentView = pv;
 		imgOnBuffer = new ArrayList<Bitmap>();
 		urlOnBuffer = new ArrayList<URL>();
+		fileIdOnBuffer = new ArrayList<String>();
+		scaledValues = new ArrayList<Float>();
 		lastendPoint = ctb.getLast_img_marked();
 		lastStartPoint = lastendPoint;
 		loadImagesToBuffer(1);
@@ -62,6 +69,7 @@ public class PopulateItemsImageManager {
 				DocumentBuilder db = dbf.newDocumentBuilder();
 				Document doc = db.parse(stream);
 				doc.getDocumentElement().normalize();
+				fileId = doc.getElementsByTagName("fileId").item(0).getTextContent();
 				Node node = doc.getElementsByTagName("baseName").item(0);
 				url = new URL("http://128.214.112.107/pmg/viewer/images/"+node.getTextContent());
 				Log.d(TAG,"Loaded URL"+url.toString());
@@ -89,6 +97,7 @@ public class PopulateItemsImageManager {
 					scaleHeight = scaleWidth;
 				else 
 					scaleWidth = scaleHeight;
+				scaledValue = scaleWidth;
 				Matrix matrix = new Matrix();
 				matrix.postScale(scaleWidth, scaleHeight);
 				photo_bitmap = Bitmap.createBitmap(photo_bitmap,0,0,width,height,matrix,true); 
@@ -100,6 +109,8 @@ public class PopulateItemsImageManager {
 			if (photo_bitmap!=null){
 				urlOnBuffer.add(url);
 				imgOnBuffer.add(photo_bitmap);
+				fileIdOnBuffer.add(fileId);
+				scaledValues.add(new Float(scaledValue));
 				Log.d(TAG,"Image Added to System");
 			}
 		}
@@ -109,12 +120,14 @@ public class PopulateItemsImageManager {
 	}
 	
 	public Bitmap getImagetoMarkBonderies(int stPoint){
-		Log.d(TAG,">>>>>>>>>>>>>>> LastStart "+lastStartPoint+" LastEndPoint"+lastendPoint+" stPoint"+stPoint);
+		//Log.d(TAG,">>>>>>>>>>>>>>> LastStart "+lastStartPoint+" LastEndPoint"+lastendPoint+" stPoint"+stPoint);
 		try{
 		if (lastStartPoint!=stPoint){
 			for (int i=0;i<stPoint-lastStartPoint;i++){
 				imgOnBuffer.remove(0);
 				urlOnBuffer.remove(0);
+				fileIdOnBuffer.remove(0);
+				scaledValues.remove(0);
 			}
 			lastStartPoint = stPoint;
 			loadImagesToBuffer(stPoint);
@@ -126,9 +139,21 @@ public class PopulateItemsImageManager {
 		}catch (Exception e) {
 			return null;
 		}
-		
 	}
 	
+	public String getFileIdOfImageToMarkBonderies(int stPoint){
+		if (fileIdOnBuffer.size()>0)
+			return fileIdOnBuffer.get(0);
+		else
+			return null;
+	}
+	
+	public float getScaleFactorOfImageToMarkBonderies(int stPoint){
+		if (scaledValues.size()>0)
+			return scaledValues.get(0);
+		else
+			return 0;
+	}
 }	
 	
 
