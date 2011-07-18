@@ -1,5 +1,6 @@
 package hiit.nopsa.pirate;
 
+import java.io.IOException;
 import java.util.Date;
 
 import android.app.Activity;
@@ -11,10 +12,14 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.MediaController.MediaPlayerControl;
+import android.widget.SlidingDrawer;
 import android.widget.Toast;
 
 public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
@@ -39,6 +44,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
         buttonsOnDrag = false;
         screenAlive = true;
 	}
+	
 	
 	protected void onDraw(Canvas canvas){
 		//System.gc();
@@ -147,6 +153,8 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 	private int cartDist(int x1, int y1, int x2, int y2){
 		 return (int) Math.sqrt((Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2)));
 	}
+	
+	
 
 	@Override
 	public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
