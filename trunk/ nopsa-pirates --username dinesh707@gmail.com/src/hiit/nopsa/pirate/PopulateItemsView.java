@@ -158,10 +158,10 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		canvas.drawText(""+gameStatus.getNum_crew(),640,570,text_paint);
 		small = BitmapFactory.decodeResource(getResources(), R.drawable.slave_small);
 		canvas.drawBitmap(small, 690, 545 , back_paint);
-		canvas.drawText(""+gameStatus.getNum_crew(),720,570,text_paint);
+		canvas.drawText(""+gameStatus.getNum_slaves(),720,570,text_paint);
 		small = BitmapFactory.decodeResource(getResources(), R.drawable.animal_small);
 		canvas.drawBitmap(small, 770, 545 , back_paint);
-		canvas.drawText(""+gameStatus.getNum_crew(),800,570,text_paint);
+		canvas.drawText(""+gameStatus.getNum_animals(),800,570,text_paint);
 		
 	}//======================================================== END OF ON_DRAW()
 	
@@ -243,17 +243,40 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 				}
 			}
 			if (squarePaint!=null){
+				String boundary_str = "";
 				if (squarePaint.getColor() == Color.RED){
 					//TODO -- Mark Image as Not useful
 					selectedColectable.setLast_img_marked(selectedColectable.getLast_img_marked()+1);
 					Log.d(TAG,"Image Droped on RED");
+					//== Update MINUS for server
+					String url_str = "http://192.168.100.14/nopsa_game/relavancy.php?"+"id="+imageId+"&tag="+
+						selectedColectable.getTag()+"&plus=0";
+					try {
+						URL url = new URL(url_str);
+						Log.d(TAG,"URL "+url_str);
+						HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+						connection.setRequestMethod("GET");
+						connection.connect();
+						InputStream stream = connection.getInputStream();
+						Log.d(TAG,"===============UPDATE SUCESSFULL");
+						Log.d(TAG,stream.toString());
+						// Add a point to item
+						selectedColectable.setScore(selectedColectable.getScore()+1); 
+						// Add a point to Total food score
+						if (collectableType == 2)
+							gameStatus.setTotal_food_score(gameStatus.getTotal_food_score()+1);
+					}catch(Exception e){
+						Log.d(TAG,"Data Updating into Border DB Failed!");
+						e.printStackTrace();
+					}
+					
+					//===End of UPDATE MINUS
 				}
 				else if (squarePaint.getColor() == Color.GREEN){
 					//TODO -- Upload Image Bounderies to server
 					selectedColectable.setLast_img_marked(selectedColectable.getLast_img_marked()+1);
 					Log.d(TAG,"Image Droped on GREEN "+selectedColectable.getLast_img_marked());
 					//==== Update Boundaries to Server=====================
-					String boundary_str = "";
 					for (int i=0;i<boundary.size();i++){
 						boundary_str = boundary_str + (boundary.get(i)[0]/scaledVal)+","+(boundary.get(i)[1]/scaledVal)+";";
 					}
@@ -271,7 +294,8 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 						// Add a point to item
 						selectedColectable.setScore(selectedColectable.getScore()+1); 
 						// Add a point to Total food score
-						gameStatus.setTotal_food_score(gameStatus.getTotal_food_score()+1);
+						if (collectableType == 2)
+							gameStatus.setTotal_food_score(gameStatus.getTotal_food_score()+1);
 					}catch(Exception e){
 						Log.d(TAG,"Data Updating into Border DB Failed!");
 						e.printStackTrace();

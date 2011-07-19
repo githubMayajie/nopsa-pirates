@@ -1,6 +1,9 @@
 package hiit.nopsa.pirate;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +12,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
@@ -16,6 +21,8 @@ public class MainActivity extends Activity {
 	private HomeView homeView;
 	private final String TAG = "NOPSA-P";
 	private MediaPlayer mPlayer = null;
+	private String name_enterd="";
+	private MainActivity mainActivity;
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -25,8 +32,38 @@ public class MainActivity extends Activity {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         //Remove notification bar
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        GameStatus.getGameStatusObject().loadGameData(this);
+        if (GameStatus.getGameStatusObject().getUser_id()==0)
+        	popInputScreenToGetName();
         homeView = new HomeView(this,this);
-        setContentView(homeView);        
+        setContentView(homeView);
+        mainActivity = this;
+	}
+	
+	public void  popInputScreenToGetName(){
+		Log.d(TAG,"ENTER NAME and update Game Data with it --->");
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);                 
+		alert.setMessage("What will be your Pirate Name Cap'n?");                
+
+		// Set an EditText view to get user input   
+		final EditText input = new EditText(this);
+		alert.setView(input);
+
+		alert.setPositiveButton("Sail", new DialogInterface.OnClickListener() {  
+			public void onClick(DialogInterface dialog, int whichButton) {  
+				name_enterd = input.getText().toString();
+				Log.d(TAG, "ööööööööööööööööööööööööööööööö--- "+name_enterd.length());
+				if (name_enterd.length()<1){
+					mainActivity.popInputScreenToGetName();
+				}
+				else
+					return;                  
+			}  
+		});  
+		alert.show();
+		GameStatus.getGameStatusObject().setUser_name(name_enterd);
+		//TODO get a user_id from server -- send user_name to server and get the user_id
+		//     then save the user_id into GameStatus as well
 	}
 	
 	private void playSound(){

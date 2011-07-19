@@ -33,6 +33,9 @@ public class GameStatus {
 		
 	private long lastTimeUpdated;
 	
+	private int user_id;
+	private String user_name;
+	
 	// How much time left to goto next island. This can be vary from 3 min to 10 min.
 	// This saves the time in seconds 
 	private int timeOfNextIsland; 
@@ -40,6 +43,8 @@ public class GameStatus {
 	// If instructions is true : then system pop instructions in every screen when 
 	//                           every screen is loading
 	private boolean instructions;
+	private boolean sounds;
+	private boolean haptics;
 	
 	// This is set to TRUE when game is on sailing mode
 	private boolean gameOn;
@@ -60,6 +65,30 @@ public class GameStatus {
 	}
 	public void setGameOn(boolean gameOn) {
 		this.gameOn = gameOn;
+	}
+	public int getUser_id() {
+		return user_id;
+	}
+	public void setUser_id(int user_id) {
+		this.user_id = user_id;
+	}
+	public String getUser_name() {
+		return user_name;
+	}
+	public void setUser_name(String user_name) {
+		this.user_name = user_name;
+	}
+	public boolean isSounds() {
+		return sounds;
+	}
+	public void setSounds(boolean sounds) {
+		this.sounds = sounds;
+	}
+	public boolean isHaptics() {
+		return haptics;
+	}
+	public void setHaptics(boolean haptics) {
+		this.haptics = haptics;
 	}
 	public ArrayList<Collectable> getCollectablesToMarkBoundariesById(Collectable col){
 		//col.getLast_img_marked()
@@ -270,7 +299,12 @@ public class GameStatus {
 			Log.d(TAG,"Last UPDATED TIME :==:==:"+gameStatus.getLastTimeUpdated());
 			gameStatus.setTimeOfNextIsland(Integer.parseInt(gameData[6].split(",")[1]));
 			gameStatus.setInstructions(Boolean.parseBoolean(gameData[7].split(",")[1]));
-
+			// instructions,true;sounds,true;haptics,true;" +"user_id,0,user_name, ";
+			gameStatus.setSounds(Boolean.parseBoolean(gameData[8].split(",")[1]));
+			gameStatus.setHaptics(Boolean.parseBoolean(gameData[9].split(",")[1]));
+			gameStatus.setUser_id(Integer.parseInt(gameData[10].split(",")[1]));
+			gameStatus.setUser_name(gameData[11].split(",")[1]);
+			Log.d(TAG,"BOOOO NEW STUFF---Z"+gameStatus.getUser_id());
 			//============================= Loading other data
 			gameStatus.setNum_animals(0);
 			gameStatus.setNum_food(0);
@@ -285,7 +319,8 @@ public class GameStatus {
 				Log.d(TAG,"FILE NEWLY CREATED");
 				String game_data = 
 						"ship_class,1;weapon_class,1;sails_class,1;num_crew,3;coins,1000;" +
-						"lastTimeUpdated,0;timeOfNextIsland,45;instructions,true";
+						"lastTimeUpdated,0;timeOfNextIsland,45;instructions,true;sounds,true;haptics,true;" +
+						"user_id,0;user_name,new_pirate";
 				try {
 					fos.write(game_data.getBytes());
 					fos.flush();
@@ -314,7 +349,11 @@ public class GameStatus {
 					";coins,"+this.getCoins()+
 					";lastTimeUpdated,"+this.getLastTimeUpdated()+
 					";timeOfNextIsland,"+this.getTimeOfNextIsland()+
-					";instructions,"+this.getInstructions();
+					";instructions,"+this.getInstructions()+
+					";sounds,"+this.isSounds()+
+					";haptics,"+this.isHaptics()+
+					";user_id,"+this.getUser_id()+
+					";user_name,"+this.getUser_name();
 			fos.write(game_data.getBytes());
 			fos.flush();
 			fos.close();

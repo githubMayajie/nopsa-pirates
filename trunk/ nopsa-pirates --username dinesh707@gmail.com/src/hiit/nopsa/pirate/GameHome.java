@@ -24,7 +24,6 @@ public class GameHome extends Activity{
 	    //Remove notification bar
 	    this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 	    //Loading GameData from Files
-	    GameStatus.getGameStatusObject().loadGameData(this);
 	    gameHomeView = new GameHomeView(this,this);
 	    setContentView(gameHomeView);
 	}
@@ -77,6 +76,9 @@ public class GameHome extends Activity{
 	    		Toast.makeText(this,"Info Dialogs Enabled", Toast.LENGTH_SHORT).show();	
 	    	}
 	        return true;
+	    case R.id.haptics:
+	    	//TODO
+	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
 	    }
