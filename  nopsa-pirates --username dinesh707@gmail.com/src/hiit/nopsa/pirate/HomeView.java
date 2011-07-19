@@ -3,6 +3,9 @@ package hiit.nopsa.pirate;
 import java.io.IOException;
 import java.util.Date;
 
+import com.senseg.effect.EffectManager;
+import com.senseg.effect.FeelableSurface;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -153,7 +156,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 	private int cartDist(int x1, int y1, int x2, int y2){
 		 return (int) Math.sqrt((Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2)));
 	}
-	
+
 	
 
 	@Override
