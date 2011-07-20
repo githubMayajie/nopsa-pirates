@@ -5,6 +5,7 @@ import java.util.Date;
 
 import com.senseg.effect.EffectManager;
 import com.senseg.effect.FeelableSurface;
+import com.senseg.effect.effects.DragAndDropCollection;
 
 import android.app.Activity;
 import android.content.Context;
@@ -36,6 +37,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 	private boolean buttonsOnDrag;
 	private int _x,_y,_r, _st_x, _st_y, _button_id;
 	private boolean screenAlive = false;
+	private  EffectManager manager;
 	
 	public HomeView(Context context, Activity activity) {
 		super(context);
@@ -112,6 +114,11 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			_x = (int) me.getX();
 			_y = (int) me.getY();
 			_r = (int) Math.max(36, 200-((cartDist(_x, _y, 515, 303))/(2)));
+			//===========HAPTICS=======
+			 manager = (EffectManager) mainActivity.getSystemService(mainActivity.EFFECT_SERVICE);
+			 DragAndDropCollection mDrag = DragAndDropCollection.load(mainActivity, manager);
+			 mDrag.tick.play();	
+			//==========END OF HAPTICS
 		}
 		if (me.getAction() == MotionEvent.ACTION_UP){
 			buttonsOnDrag = false;
@@ -145,6 +152,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 				// Exit Button
 				screenAlive = false;
 				Log.d(TAG, "Exit Game");
+				GameStatus.getGameStatusObject().saveGameData(mainActivity);
 				mainActivity.finish();
 			}				
 		}		
