@@ -44,6 +44,8 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 	private URL moving_url = null;
 	private Bitmap icons;
 	private int moving_imgId;
+	private boolean scrolingStarted = false;
+	private int scroll_val = 0;
 	
 	public CollectItemsView(Context context, Activity activity) {
 		super(context);
@@ -121,16 +123,20 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 		
 		// Draw Dragging Image
 		if (img_id>=0){
-			Log.d(TAG,"IMAGE is MOVING");
-			canvas.drawBitmap(moving_img, moving_imgX-37, moving_imgY-37, back_paint);//23	
+			if (moving_imgY>100){
+				Log.d(TAG,"IMAGE is MOVING");
+				canvas.drawBitmap(moving_img, moving_imgX-37, moving_imgY-37, back_paint);//23	
+			}
 		}
 	}
-	
-	
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
 		if (me.getAction() == MotionEvent.ACTION_DOWN) {
+			if (me.getY()<100){
+				scrolingStarted = true;
+				scroll_val = (int) me.getX();
+			}
 			if ((904<me.getX())&&(me.getX()<1004)&&(480<me.getY())&&(me.getY()<580)){
 				collectItemsActivity.finish();
 			}
@@ -193,8 +199,16 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 			moving_imgY = (int) me.getY();
 		}
 		if (me.getAction() == MotionEvent.ACTION_MOVE) {
-			moving_imgX = (int) me.getX();
-			moving_imgY = (int) me.getY();
+				moving_imgX = (int) me.getX();
+				moving_imgY = (int) me.getY();
+				if (scrolingStarted)
+					if ((me.getX()-scroll_val)>80){
+						// TODO Introduce one more image
+						// TODO delete last image
+						scroll_val = (int) me.getX();
+						Log.d(TAG,"============== Image Add New =====================");
+						currentLoaction = currentLoaction+1;
+					}
 		}
 		if (me.getAction() == MotionEvent.ACTION_UP) {
 			if ((me.getY()>470)&&(img_id>=0)&&(moving_url!=null)){
@@ -217,6 +231,7 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 			}
 			img_id = -1;
 			moving_url = null;
+			scrolingStarted = false;
 		}
 		return true;
 	}
