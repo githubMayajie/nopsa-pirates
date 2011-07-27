@@ -56,7 +56,7 @@ public class CollectItemsImageGenarator {
 	// Screen shows 24 images starting from currentLocation
 	public void setCurrentLocation(int i){
 		currentLocation = i;
-		//Log.d(TAG,""+methodLock);
+		Log.d(TAG,"---> Num Img In Array -->"+images.size());
 		if (!methodLock){
 			methodLock = true;
 			Log.d(TAG,"Times it called!");
