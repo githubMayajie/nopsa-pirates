@@ -38,6 +38,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 	private int _x,_y,_r, _st_x, _st_y, _button_id;
 	private boolean screenAlive = false;
 	private  EffectManager manager;
+	private GameStatus gameStatus;
 	
 	public HomeView(Context context, Activity activity) {
 		super(context);
@@ -48,6 +49,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
         glowAlpha = 0;
         buttonsOnDrag = false;
         screenAlive = true;
+        gameStatus = GameStatus.getGameStatusObject();
 	}
 	
 	
@@ -140,13 +142,11 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 
 			}
 			if (cartDist(247, 503, (int) me.getX(), (int) me.getY()) < 40){
-				// Hall of Fame Button
-				Log.d(TAG, "Open Hall of Fame");
+				// Hall of Fame Button --<< Renamed to ABOUT GAME HELP
+				Log.d(TAG, "Start Game Help");
 				//TODO
-				// Open the hall of fame
-				// Better to open a web browser with given like to some place
-				// In that web site user will allow to do many other stuff ( MAYE BE )
-				// Such as publish to FB
+				HelpDialog hd = new HelpDialog();
+	      	    hd.popInstructionsDialog(mainActivity,0);
 			}			
 			if (cartDist(968, 544, (int) me.getX(), (int) me.getY()) < 40){
 				// Exit Button

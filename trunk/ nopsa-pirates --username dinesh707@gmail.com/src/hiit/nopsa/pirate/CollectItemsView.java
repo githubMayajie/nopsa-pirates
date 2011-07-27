@@ -121,6 +121,14 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 		canvas.drawBitmap(imageGenarator.images.get(22), 84, 30, back_paint);//22
 		canvas.drawBitmap(imageGenarator.images.get(23), 0, 30, back_paint);//23
 		
+		if (imageGenarator.image_urls.get(0)==null){
+			// Photos are still loading
+			text_paint.setColor(Color.BLACK);
+			text_paint.setTextSize(25);
+			canvas.drawText("Loading",900,50, text_paint);
+		}
+			
+		
 		// Draw Dragging Image
 		if (img_id>=0){
 			if (moving_imgY>100){
