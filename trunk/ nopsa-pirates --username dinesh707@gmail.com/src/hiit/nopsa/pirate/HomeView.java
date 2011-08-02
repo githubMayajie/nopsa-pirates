@@ -20,6 +20,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.MotionEvent.PointerCoords;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.MediaController.MediaPlayerControl;
@@ -29,16 +30,18 @@ import android.widget.Toast;
 public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 	
 	private final String TAG = "NOPSA-P";
-	private Bitmap home_wall;
+	private Bitmap home_wall, beam;
 	private Activity mainActivity;
 	private Intent gameHome;
 	private ViewControllerThread thread;
-	private float glowAlpha;
-	private boolean buttonsOnDrag;
-	private int _x,_y,_r, _st_x, _st_y, _button_id;
-	private boolean screenAlive = false;
-	private  EffectManager manager;
-	private GameStatus gameStatus;
+	private boolean redButtonPressed = false;
+	private boolean greenButtonPressed = false;
+	private boolean doorOpening = false;
+	private int door_x = 0;
+	private Bitmap day_sea = null, door_left = null, door_right = null;
+	private EffectManager manager;
+	
+	
 	
 	public HomeView(Context context, Activity activity) {
 		super(context);
@@ -46,115 +49,119 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		getHolder().addCallback(this);
         thread = new ViewControllerThread(getHolder(), this);
         setFocusable(true);
-        glowAlpha = 0;
-        buttonsOnDrag = false;
-        screenAlive = true;
-        gameStatus = GameStatus.getGameStatusObject();
 	}
 	
 	
 	protected void onDraw(Canvas canvas){
+		if (day_sea==null)
+			loadBitmaps();
 		//System.gc();
 		//==========Draw the background
 		Paint background = new Paint();
 		background.setColor(Color.WHITE);
 		canvas.drawRect(0, 0, getWidth(), getHeight(), background);
 		
+		//=========Draw Next Screen Sea 
+		Paint sea_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		canvas.drawBitmap(day_sea, 0, 0, sea_paint);
+		
 		//==========Draw Background Image
 		Paint home_wall_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		home_wall_paint.setStyle(Style.FILL);
-		home_wall = BitmapFactory.decodeResource(getResources(), R.drawable.home_wall);
-		canvas.drawBitmap(home_wall, 0, 0, home_wall_paint);
+		canvas.drawBitmap(door_left, 0-door_x, 0, home_wall_paint);
+		canvas.drawBitmap(door_right, 0+door_x, 0, home_wall_paint);
 		
-		
-		//==========Draw Glowing Buttons
-		Paint glow = new Paint(Paint.ANTI_ALIAS_FLAG);
-		glow.setColor(Color.WHITE);
-		//glow.setAlpha((int) Math.abs(((Math.sin((glowAlpha*Math.PI)/180))*50)));
-		glow.setAlpha((int)(glowAlpha/2));
-		if (buttonsOnDrag){
-			canvas.drawCircle(291, 88, 36, glow);
-			canvas.drawCircle(168, 285, 36, glow);
-			canvas.drawCircle(247, 503, 36, glow);
-			canvas.drawCircle(968, 547, 36, glow);
-			glow.setAlpha(128);
-			canvas.drawCircle(_x, _y, _r, glow);	
+		//=========Draw Laser Beams When button Clicks
+		Paint beam_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		Paint text_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		text_paint.setTextSize(20);
+		text_paint.setColor(Color.BLACK);
+		if (greenButtonPressed){
+			beam = BitmapFactory.decodeResource(getResources(), R.drawable.blue);
+			canvas.drawBitmap(beam, 749, 0, beam_paint);
+			canvas.drawText("             Help              Start", 749, 305, text_paint);
 		}
-		//==========Draw Glowing Skull
-		if (!buttonsOnDrag){
-			Paint skull_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-			//skull_paint.setStyle(Style.FILL);
-			skull_paint.setAlpha((int)glowAlpha);
-			Bitmap skull = BitmapFactory.decodeResource(getResources(), R.drawable.glow_skel);
-			canvas.drawBitmap(skull, 284,73, skull_paint);
+		if (redButtonPressed){
+			beam = BitmapFactory.decodeResource(getResources(), R.drawable.red);
+			canvas.drawBitmap(beam, 0, 0, beam_paint);
+			canvas.drawText("          Exit              About", 0, 305, text_paint);
 		}
 	}
 	
-	//TODO
-	private void buttonGlower(){
-		new Thread(new Runnable() {
-			public void run() {
-				while(screenAlive){
-					android.os.SystemClock.sleep(40); 
-						Date d = new Date();
-						glowAlpha = (((float) Math.sin((d.getTime()/10)*0.0174532925))*120)+120;
-				}
-			}
-		}).start();
+	private void loadBitmaps(){
+		day_sea = BitmapFactory.decodeResource(getResources(), R.drawable.day_sea);
+		door_left = BitmapFactory.decodeResource(getResources(), R.drawable.maindoor_left);
+		door_right = BitmapFactory.decodeResource(getResources(), R.drawable.maindoor_right);
 	}
 	
 		
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
+		if (me.getPointerCount()>1){
+			PointerCoords pc1 = new PointerCoords();
+			me.getPointerCoords(0, pc1);
+			PointerCoords pc2 = new PointerCoords();
+			me.getPointerCoords(1, pc2);
+			if (((pc1.x-512)*(pc2.x-512))<0){
+				door_x = cartDist((int)pc1.x, (int)pc1.y, (int)pc2.x, (int)pc2.y)/2;
+				//===========HAPTICS=======
+				manager = (EffectManager) mainActivity.getSystemService(mainActivity.EFFECT_SERVICE);
+				DragAndDropCollection mDrag = DragAndDropCollection.load(mainActivity, manager);
+				mDrag.tick.play();	
+				//==========END OF HAPTICS
+			}
+		}
+		
+		if ((door_x>100)&&(me.getAction()==MotionEvent.ACTION_UP)){
+			while (door_x<512){
+				door_x = door_x+1;
+				android.os.SystemClock.sleep(5);
+			}
+			Log.d(TAG, "Game Start");
+			thread.setRunning(false);
+    		gameHome = new Intent(mainActivity,GameHome.class);
+    		mainActivity.startActivity(gameHome);
+    		Toast.makeText(mainActivity,"Game Loading ..", Toast.LENGTH_SHORT).show();	
+		}
 		if (me.getAction() == MotionEvent.ACTION_DOWN){
-			if (cartDist(515, 303, (int) me.getX(), (int) me.getY()) < 200){
-				buttonsOnDrag = true;
-				
+			if (cartDist(277, 300, (int) me.getX(), (int) me.getY()) < 50){
+				redButtonPressed = true;
+			}
+			if (cartDist(744, 300, (int) me.getX(), (int) me.getY()) < 50){
+				greenButtonPressed = true;
 			}
 		}
 		if (me.getAction() == MotionEvent.ACTION_MOVE){
-			_x = (int) me.getX();
-			_y = (int) me.getY();
-			_r = (int) Math.max(36, 200-((cartDist(_x, _y, 515, 303))/(2)));
-			//===========HAPTICS=======
-			 manager = (EffectManager) mainActivity.getSystemService(mainActivity.EFFECT_SERVICE);
-			 DragAndDropCollection mDrag = DragAndDropCollection.load(mainActivity, manager);
-			 mDrag.tick.play();	
-			//==========END OF HAPTICS
+			
+			
 		}
 		if (me.getAction() == MotionEvent.ACTION_UP){
-			buttonsOnDrag = false;
-			
-			if (cartDist(291, 88, (int) me.getX(), (int) me.getY()) < 40){
-				// Play game button
-				screenAlive = false;
-				Log.d(TAG, "Game Start");
+			if (door_x<500)
+				door_x = 0;
+			if ((greenButtonPressed)&&(cartDist(830, 300, (int) me.getX(), (int)me.getY())<50)){
+				Log.d(TAG,"============ HELP PRESSED !! ==================");
+				HelpDialog hd = new HelpDialog();
+	      	    hd.popInstructionsDialog(mainActivity,0);
+			}
+			if ((greenButtonPressed)&&(cartDist(940, 300, (int) me.getX(), (int)me.getY())<50)){
+				Log.d(TAG,"============ START PRESSED !! ==================");
 				thread.setRunning(false);
 	    		gameHome = new Intent(mainActivity,GameHome.class);
 	    		mainActivity.startActivity(gameHome);
-	    		Toast.makeText(mainActivity,"Game Loading ..", Toast.LENGTH_SHORT).show();					
+	    		Toast.makeText(mainActivity,"Game Loading ..", Toast.LENGTH_SHORT).show();		
 			}
-			if (cartDist(167, 283, (int) me.getX(), (int) me.getY()) < 40){
-				// About Button
-				Log.d(TAG, "Open About Box");
-				//TODO
-				// Open About Box
-
-			}
-			if (cartDist(247, 503, (int) me.getX(), (int) me.getY()) < 40){
-				// Hall of Fame Button --<< Renamed to ABOUT GAME HELP
-				Log.d(TAG, "Start Game Help");
-				//TODO
-				HelpDialog hd = new HelpDialog();
-	      	    hd.popInstructionsDialog(mainActivity,0);
-			}			
-			if (cartDist(968, 544, (int) me.getX(), (int) me.getY()) < 40){
-				// Exit Button
-				screenAlive = false;
+			if ((redButtonPressed)&&(cartDist(80, 300, (int) me.getX(), (int)me.getY())<50)){
+				Log.d(TAG,"============ EXIT PRESSED !! ==================");
 				Log.d(TAG, "Exit Game");
 				GameStatus.getGameStatusObject().saveGameData(mainActivity);
 				mainActivity.finish();
-			}				
+			}
+			if ((redButtonPressed)&&(cartDist(190, 300, (int) me.getX(), (int)me.getY())<50)){
+				Log.d(TAG,"============ About PRESSED !! ==================");
+			}
+
+			redButtonPressed = false;
+			greenButtonPressed = false;							
 		}		
 		return true;
 	}
@@ -165,7 +172,6 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		 return (int) Math.sqrt((Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2)));
 	}
 
-	
 
 	@Override
 	public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
@@ -173,7 +179,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		screenAlive = true;
+		door_x = 0;
 		thread = new ViewControllerThread(getHolder(), this);
 		thread.setRunning(true);
 		Log.d(TAG,"Thread is Aline ==>>"+thread.isAlive());
@@ -207,7 +213,6 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
         public void setRunning(boolean r) {
         	if (r){
         		Log.d(TAG,"Button Glower Called");
-        		buttonGlower();
         	}
             run = r;
         }
