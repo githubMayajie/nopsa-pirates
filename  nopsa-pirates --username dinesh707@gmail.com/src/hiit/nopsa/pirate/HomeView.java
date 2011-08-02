@@ -97,6 +97,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
+		
 		if (me.getPointerCount()>1){
 			PointerCoords pc1 = new PointerCoords();
 			me.getPointerCoords(0, pc1);
@@ -111,8 +112,16 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 				//==========END OF HAPTICS
 			}
 		}
+		else{
+			// Test Haptics Load from XML
+			manager = (EffectManager) mainActivity.getSystemService(mainActivity.EFFECT_SERVICE);
+			FeelableSurface mSurface = new FeelableSurface(this.getContext(), manager, R.xml.unlock_surface);
+			mSurface.setActive(true);
+		    mSurface.onTouchEvent(me);
+			//========== End of test haptics
+		}
 		
-		if ((door_x>100)&&(me.getAction()==MotionEvent.ACTION_UP)){
+		if ((door_x>150)&&(me.getAction()==MotionEvent.ACTION_UP)){
 			while (door_x<512){
 				door_x = door_x+1;
 				android.os.SystemClock.sleep(5);
