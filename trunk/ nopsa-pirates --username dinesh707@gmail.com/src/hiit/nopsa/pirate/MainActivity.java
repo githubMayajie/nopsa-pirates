@@ -12,6 +12,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import com.senseg.effect.EffectManager;
+import com.senseg.effect.FeelableSurface;
 import com.senseg.effect.effects.DragAndDropCollection;
 import com.senseg.effect.effects.ScrollCollection;
 
@@ -146,7 +147,5 @@ public class MainActivity extends Activity {
 		super.onPause();
 	}
 	
-	
-		
 
 }
