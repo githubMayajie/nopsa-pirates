@@ -84,8 +84,9 @@ public class MainActivity extends Activity {
 	public void getUserIdFromServer(){
 		//TODO get a user_id from server -- send user_name to server and get the user_id
 		//     then save the user_id into GameStatus as well
+		
 		try {
-			String url_str = "http://192.168.100.14/nopsa_game/user.php?name="+name_enterd;
+			String url_str = "http://ec2-107-20-212-167.compute-1.amazonaws.com/nopsa_game/user.php?name="+name_enterd;
 			Log.d(TAG,url_str);
 			URL url = new URL(url_str);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -103,6 +104,7 @@ public class MainActivity extends Activity {
 		}catch (Exception e){
 			Log.d(TAG,"User Id retrival FAILED");
 		}
+		
 	}
 	
 	private void playSound(){

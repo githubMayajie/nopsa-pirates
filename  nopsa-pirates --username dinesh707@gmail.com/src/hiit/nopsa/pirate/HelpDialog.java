@@ -35,11 +35,11 @@ public class HelpDialog {
 		String title = "Yo Captain "+GameStatus.getGameStatusObject().getUser_name()+" !";
   		String[] text = {
   				"Welcome to NOPSA Sea, You are loaded with "+GameStatus.getGameStatusObject().getNum_crew()+" crew members " +
-  				" and enough food to survive for some time. Hoist the sails to rule the sea.", 
-  				"Train animals and make them worth to sell. Train slaves and turn them to crew or sell them for higher price.", 
-  				"You also need to pile more food to feed your hungry crew, slaves and animals.", 
+  				" and enough food to survive for some time. Hoist the sails to rule the sea.(1/5)", 
+  				"Train animals and make them worth to sell. Train slaves and turn them to crew or sell them for higher price.(2/5)", 
+  				"You also need to pile more food to feed your hungry crew, slaves and animals.(3/5)", 
   				"Once your time in the sea is up your ship will reach an island. There you can capture " +
-  				"more animals, slaves and food.",
+  				"more animals, slaves and food.(4/5)",
   				"To upgrade your ship you need money and crew. To get money you must sell trained " +
   				"animals and slaves. To get crew you can buy them or convert your trained slaves to crew members..."};
 		

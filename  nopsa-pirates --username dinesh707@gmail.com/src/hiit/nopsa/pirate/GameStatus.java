@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 
 
 import android.content.Context;
@@ -319,7 +318,7 @@ public class GameStatus {
 				Log.d(TAG,"FILE NEWLY CREATED");
 				String game_data = 
 						"ship_class,1;weapon_class,1;sails_class,1;num_crew,3;coins,1000;" +
-						"lastTimeUpdated,0;timeOfNextIsland,45;instructions,true;sounds,true;haptics,true;" +
+						"lastTimeUpdated,0;timeOfNextIsland,300;instructions,true;sounds,true;haptics,true;" +
 						"user_id,0;user_name,new_pirate";
 				try {
 					fos.write(game_data.getBytes());

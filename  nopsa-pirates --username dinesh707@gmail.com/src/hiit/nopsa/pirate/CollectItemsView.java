@@ -1,15 +1,6 @@
 package hiit.nopsa.pirate;
 
-
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-
-import hiit.nopsa.pirate.GameHomeView.ViewControllerThread;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -20,20 +11,16 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.Paint.Style;
-import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
-import android.view.WindowManager;
 
 public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callback{
 
 	private Activity collectItemsActivity;
 	private final String TAG = "NOPSA-P";
 	private Bitmap background;
-	private Bitmap ribbonIcon;
 	private ViewControllerThread _thread;
 	private int collectableType;
 	private CollectItemsImageGenarator imageGenarator=null;
@@ -231,11 +218,6 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 					System.gc();
 					collectItemsActivity.startActivityForResult(keyboardHome, 511);					
 				}
-				//collectItemsActivity.getWindow()
-				//	.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-				//TODO pop the keyboard to enter tag
-				// After the tag is enterd create Collectable Object "c"
-				//GameStatus.getGameStatusObject().addCollectableFromId(collectableType, c)
 			}
 			img_id = -1;
 			moving_url = null;
