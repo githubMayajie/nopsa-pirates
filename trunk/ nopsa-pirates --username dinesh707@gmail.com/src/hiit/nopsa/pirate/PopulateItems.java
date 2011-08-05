@@ -18,8 +18,7 @@ public class PopulateItems extends Activity {
 	    this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 	    //Remove notification bar
 	    this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-	    
-	    
+
 	    populateItemsView = new PopulateItemsView(this,this);
 	    setContentView(populateItemsView);
 	}

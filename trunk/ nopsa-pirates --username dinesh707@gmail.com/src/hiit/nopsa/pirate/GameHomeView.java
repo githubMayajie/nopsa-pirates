@@ -1,7 +1,7 @@
 package hiit.nopsa.pirate;
 
-import java.security.acl.LastOwnerException;
 import java.util.Date;
+import java.util.Random;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +18,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.Toast;
 
 public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 
@@ -200,7 +199,6 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 			selectedKey = 0;
 		}
 		if (me.getAction() == MotionEvent.ACTION_MOVE) {
-			//TODO
 			if (cartDist(501, 399, (int)me.getX(), (int)me.getY())>70){
 				angle = getAngle(501, 399, (int)me.getX(), (int)me.getY());
 				if ((angle<-1)&&(angle>-60))
@@ -244,8 +242,6 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 					
 				case FOOD:
 					populateItems.putExtra("type", 2);
-		    		//gameHomeActivity.startActivity(populateItems);
-					//TODO CHANGED !!
 					gameHomeActivity.startActivityForResult(populateItems, 972);
 					break;
 					
@@ -260,7 +256,6 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 					break;
 					
 				case MARKET:
-					// TODO - MArket Activity
 					Intent market = new Intent(gameHomeActivity,MarketHome.class);
 					gameHomeActivity.startActivityForResult(market, 233);
 					break;
@@ -284,8 +279,6 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 	}
 	
 	private void alertDeath(final String s){
-		//TODO
-		
 		Handler mHandler = new Handler(Looper.getMainLooper());
 		mHandler.post(new Runnable() {
 	          public void run() {
@@ -325,7 +318,7 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 			Log.d(TAG,"STARTING THE INTENT 'gameHomeActivity'..");
 			//populateItems.
 			gameHomeActivity.finishActivity(972); // Finishing PopulateItems Activity
-			//TODO BUG : When it returns from Populate items it some times cre two island home activities.
+			//TODO BUG : When it returns from Populate items it some times creates two island home activities.
 			Log.d(TAG, "ISLAND HOME T OR F --->>"+(islandHome==null));
 			islandHome = new Intent(gameHomeActivity,IslandHome.class);
 			gameHomeActivity.startActivityForResult(islandHome,231);
@@ -417,9 +410,8 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 	public void gameResumeFromIsland(){
 		Date d = new Date();
 		gameStatus.setLastTimeUpdated(d.getTime());
-		//TODO gameStatus.setTimeOfNextIsland(x)
-		// x <- Needs to be random between 2 min to 5 min 
-		gameStatus.setTimeOfNextIsland(60);
+		Random r = new Random(d.getTime());
+		gameStatus.setTimeOfNextIsland(r.nextInt(300)+300);
 		_thread = new ViewControllerThread(getHolder(), this);
 		_thread.setRunning(true);
 		activityIsOnTop = true; // Child Intent terminated and currently this Activity is alive

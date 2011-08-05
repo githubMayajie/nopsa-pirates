@@ -3,9 +3,9 @@ package hiit.nopsa.pirate;
 import java.io.IOException;
 import java.util.Date;
 
-import com.senseg.effect.EffectManager;
-import com.senseg.effect.FeelableSurface;
-import com.senseg.effect.effects.DragAndDropCollection;
+//import com.senseg.effect.EffectManager;
+//import com.senseg.effect.FeelableSurface;
+//import com.senseg.effect.effects.DragAndDropCollection;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.media.AudioManager;
@@ -37,12 +38,12 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 	private boolean redButtonPressed = false;
 	private boolean greenButtonPressed = false;
 	private boolean doorOpening = false;
-	private int door_x = 0;
+	private int door_x = 512;
 	private Bitmap day_sea = null, door_left = null, door_right = null;
-	private EffectManager manager;
+	//private EffectManager manager;
+	private Bitmap color_wheel = null;
 	
-	
-	
+
 	public HomeView(Context context, Activity activity) {
 		super(context);
 		mainActivity = activity;
@@ -70,6 +71,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		home_wall_paint.setStyle(Style.FILL);
 		canvas.drawBitmap(door_left, 0-door_x, 0, home_wall_paint);
 		canvas.drawBitmap(door_right, 0+door_x, 0, home_wall_paint);
+	
 		
 		//=========Draw Laser Beams When button Clicks
 		Paint beam_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -77,27 +79,51 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		text_paint.setTextSize(20);
 		text_paint.setColor(Color.BLACK);
 		if (greenButtonPressed){
-			beam = BitmapFactory.decodeResource(getResources(), R.drawable.blue);
-			canvas.drawBitmap(beam, 749, 0, beam_paint);
-			canvas.drawText("             Help              Start", 749, 305, text_paint);
+			beam = BitmapFactory.decodeResource(getResources(), R.drawable.right_green_beam);
+			canvas.drawBitmap(beam, 728, 0, beam_paint);
+			beam = BitmapFactory.decodeResource(getResources(), R.drawable.right_bg_mask);
+			canvas.drawBitmap(beam, 758, 0, beam_paint);	
 		}
 		if (redButtonPressed){
-			beam = BitmapFactory.decodeResource(getResources(), R.drawable.red);
+			beam = BitmapFactory.decodeResource(getResources(), R.drawable.left_red_beam);
 			canvas.drawBitmap(beam, 0, 0, beam_paint);
-			canvas.drawText("          Exit              About", 0, 305, text_paint);
+			beam = BitmapFactory.decodeResource(getResources(), R.drawable.left_bg_mask);
+			canvas.drawBitmap(beam, 0, 0, beam_paint);
+			//canvas.drawText("          Exit              About", 0, 305, text_paint);
 		}
 	}
 	
 	private void loadBitmaps(){
+		door_x = 512;
 		day_sea = BitmapFactory.decodeResource(getResources(), R.drawable.day_sea);
 		door_left = BitmapFactory.decodeResource(getResources(), R.drawable.maindoor_left);
 		door_right = BitmapFactory.decodeResource(getResources(), R.drawable.maindoor_right);
+		color_wheel  = BitmapFactory.decodeResource(getResources(), R.drawable.color_wheel);
+		Log.d(TAG,"AAAAA  IM Insde thread !!!!!!!!!!!!!!!!!");
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Log.d(TAG,"CCCC IM Insde thread !!!!!!!!!!!!!!!!!");
+				while (door_x>0) {
+					Log.d(TAG,"BBB IM Insde thread !!!!!!!!!!!!!!!!!"+door_x);
+					door_x = door_x-1;
+					android.os.SystemClock.sleep(2);
+				}
+			}
+		}).start();
+	}
+	
+	private Bitmap rotateImage(Bitmap inputImg, int angle){
+	     Matrix mat = new Matrix();
+	     mat.postRotate(angle);
+	     Bitmap bMapRotate = Bitmap.createBitmap(inputImg, 0, 0, inputImg.getWidth(), inputImg.getHeight(), mat, true);
+	     return bMapRotate;
 	}
 	
 		
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
-		
+		Log.d(TAG,"Ontouch Called !!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		if (me.getPointerCount()>1){
 			PointerCoords pc1 = new PointerCoords();
 			me.getPointerCoords(0, pc1);
@@ -106,18 +132,18 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			if (((pc1.x-512)*(pc2.x-512))<0){
 				door_x = cartDist((int)pc1.x, (int)pc1.y, (int)pc2.x, (int)pc2.y)/2;
 				//===========HAPTICS=======
-				manager = (EffectManager) mainActivity.getSystemService(mainActivity.EFFECT_SERVICE);
-				DragAndDropCollection mDrag = DragAndDropCollection.load(mainActivity, manager);
-				mDrag.tick.play();	
+				//manager = (EffectManager) mainActivity.getSystemService(mainActivity.EFFECT_SERVICE);
+				//DragAndDropCollection mDrag = DragAndDropCollection.load(mainActivity, manager);
+				//mDrag.tick.play();	
 				//==========END OF HAPTICS
 			}
 		}
 		else{
 			// Test Haptics Load from XML
-			manager = (EffectManager) mainActivity.getSystemService(mainActivity.EFFECT_SERVICE);
-			FeelableSurface mSurface = new FeelableSurface(this.getContext(), manager, R.xml.unlock_surface);
-			mSurface.setActive(true);
-		    mSurface.onTouchEvent(me);
+			//manager = (EffectManager) mainActivity.getSystemService(mainActivity.EFFECT_SERVICE);
+			//FeelableSurface mSurface = new FeelableSurface(this.getContext(), manager, R.xml.unlock_surface);
+			//mSurface.setActive(true);
+		    //mSurface.onTouchEvent(me);
 			//========== End of test haptics
 		}
 		
@@ -154,6 +180,11 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			}
 			if ((greenButtonPressed)&&(cartDist(940, 300, (int) me.getX(), (int)me.getY())<50)){
 				Log.d(TAG,"============ START PRESSED !! ==================");
+				greenButtonPressed = false;
+				while (door_x<512){
+					door_x = door_x+1;
+					android.os.SystemClock.sleep(5);
+				}
 				thread.setRunning(false);
 	    		gameHome = new Intent(mainActivity,GameHome.class);
 	    		mainActivity.startActivity(gameHome);
@@ -207,6 +238,9 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		        } catch (InterruptedException e) {}
 		    }
 		    Log.d(TAG,"surface distroyed #####");
+	    day_sea = null;
+		door_left = null;
+		door_right = null;
 	}
 	
     class ViewControllerThread extends Thread {

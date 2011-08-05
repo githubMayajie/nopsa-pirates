@@ -1,6 +1,9 @@
 package hiit.nopsa.pirate;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -9,6 +12,12 @@ import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -249,7 +258,7 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 					selectedColectable.setLast_img_marked(selectedColectable.getLast_img_marked()+1);
 					Log.d(TAG,"Image Droped on RED");
 					//== Update MINUS for server
-					String url_str = "http://192.168.100.14/nopsa_game/relavancy.php?"+"id="+imageId+"&tag="+
+					String url_str = "http://ec2-107-20-212-167.compute-1.amazonaws.com/nopsa_game/relavancy.php?"+"id="+imageId+"&tag="+
 						selectedColectable.getTag()+"&plus=0";
 					try {
 						URL url = new URL(url_str);
@@ -280,26 +289,23 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 					for (int i=0;i<boundary.size();i++){
 						boundary_str = boundary_str + (boundary.get(i)[0]/scaledVal)+","+(boundary.get(i)[1]/scaledVal)+";";
 					}
-					String url_str = "http://192.168.100.14/nopsa_game/boundary_update.php?" +
-					"id="+imageId+"&boundary="+boundary_str;
-					try {
-						URL url = new URL(url_str);
-						Log.d(TAG,"URL "+url_str);
-						HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-						connection.setRequestMethod("GET");
-						connection.connect();
-						InputStream stream = connection.getInputStream();
-						Log.d(TAG,"===============UPDATE SUCESSFULL");
-						Log.d(TAG,stream.toString());
-						// Add a point to item
+					String url_str = "http://ec2-107-20-212-167.compute-1.amazonaws.com/nopsa_game/boundary_update.php";
+					//POSTING THE DATA===========================================
+					try{
+						String urlParameters =
+						 	"id=" + URLEncoder.encode(imageId, "UTF-8") +
+						 	"&boundary="+ URLEncoder.encode(boundary_str, "UTF-8");
+						this.excutePost(url_str, urlParameters);
+						Log.d(TAG,"POST WORKED !! ================= ");
 						selectedColectable.setScore(selectedColectable.getScore()+1); 
 						// Add a point to Total food score
 						if (collectableType == 2)
 							gameStatus.setTotal_food_score(gameStatus.getTotal_food_score()+1);
 					}catch(Exception e){
-						Log.d(TAG,"Data Updating into Border DB Failed!");
-						e.printStackTrace();
+						Log.d(TAG,"POST did not work ");
 					}
+					
+					// END OF POSTING DATA=======================================
 					boundary = null;
 				}
 			}
@@ -310,6 +316,51 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		}
 		return true;
 	}
+	
+	 public static String excutePost(String targetURL, String urlParameters){
+	    URL url;
+	    HttpURLConnection connection = null;  
+	    try {
+	      //Create connection
+	      url = new URL(targetURL);
+	      connection = (HttpURLConnection)url.openConnection();
+	      connection.setRequestMethod("POST");
+	      connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+	      connection.setRequestProperty("Content-Length", "" + Integer.toString(urlParameters.getBytes().length));
+	      connection.setRequestProperty("Content-Language", "en-US");  
+	      connection.setUseCaches (false);
+	      connection.setDoInput(true);
+	      connection.setDoOutput(true);
+
+	      //Send request
+	      DataOutputStream wr = new DataOutputStream (
+	                  connection.getOutputStream ());
+	      wr.writeBytes (urlParameters);
+	      wr.flush ();
+	      wr.close ();
+
+	      //Get Response	
+	      InputStream is = connection.getInputStream();
+	      BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+	      String line;
+	      StringBuffer response = new StringBuffer(); 
+	      while((line = rd.readLine()) != null) {
+	        response.append(line);
+	        response.append('\r');
+	      }
+	      rd.close();
+	      return response.toString();
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	      return null;
+	    } finally {
+	      if(connection != null) {
+	        connection.disconnect(); 
+	      }
+	    }
+	  }
+	
+	
 	
 	private void loadBitmaps(){
 		System.gc();
