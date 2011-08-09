@@ -134,13 +134,23 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 			//==========Draw Animal, Slaves, and Food Icons & BACK icon
 			Paint icon_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 			icon_paint.setStyle(Style.FILL);			
-			icons = BitmapFactory.decodeResource(getResources(), R.drawable.animal_icon);
+			//if (!gameStatus.getCollectableFromId(ANIMAL).isEmpty())
+				icons = BitmapFactory.decodeResource(getResources(), R.drawable.animal_icon);
+				//else
+				//icons = BitmapFactory.decodeResource(getResources(), R.drawable.animal_icon_gr);
 			canvas.drawBitmap(icons, 250, 200, icon_paint);
-			icons = BitmapFactory.decodeResource(getResources(), R.drawable.slave_icon);
+			//if (!gameStatus.getCollectableFromId(SLAVE).isEmpty())
+				icons = BitmapFactory.decodeResource(getResources(), R.drawable.slave_icon);
+				//else
+				//icons = BitmapFactory.decodeResource(getResources(), R.drawable.slave_icon_gr);
 			canvas.drawBitmap(icons, 450, 100, icon_paint);
-			icons = BitmapFactory.decodeResource(getResources(), R.drawable.food_icon);
+			
+			//if (!gameStatus.getCollectableFromId(FOOD).isEmpty())
+				icons = BitmapFactory.decodeResource(getResources(), R.drawable.food_icon);
+				//else
+				//icons = BitmapFactory.decodeResource(getResources(), R.drawable.food_icon_gr);
 			canvas.drawBitmap(icons, 650, 200, icon_paint);
-
+			
 			icons = BitmapFactory.decodeResource(getResources(), R.drawable.back_icon);
 			canvas.drawBitmap(icons, 904, 480, icon_paint);
 			icons = BitmapFactory.decodeResource(getResources(), R.drawable.coins_icon);

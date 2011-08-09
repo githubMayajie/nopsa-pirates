@@ -26,9 +26,9 @@ public class GameStatus {
 	private int num_slaves;
 	private int num_food;
 	
-	private ArrayList<Collectable> foods;
-	private ArrayList<Collectable> slaves;
-	private ArrayList<Collectable> animals;
+	private ArrayList<Collectable> foods = new ArrayList<Collectable>();
+	private ArrayList<Collectable> slaves = new ArrayList<Collectable>();
+	private ArrayList<Collectable> animals = new ArrayList<Collectable>();
 		
 	private long lastTimeUpdated;
 	
@@ -152,12 +152,15 @@ public class GameStatus {
 		switch (id) {
 		case 0:
 			animals.add(c);
+			num_animals = num_animals+1;
 			break;
 		case 1:
 			slaves.add(c);
+			num_slaves = num_slaves+1;
 			break;
 		case 2:
 			foods.add(c);
+			num_food = num_food+1;
 			break;
 		}
 	}

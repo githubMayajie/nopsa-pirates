@@ -1,0 +1,10 @@
+<FeelableSurface>
+  <SurfaceLayer class="SingleTouchSurfaceLayer"
+    distance="100"
+    offset="0"
+    slope="0" >
+    <EffectBundle>
+      <Tixel effect="@android:string/pulse_long_double_chopped" />
+    </EffectBundle>
+  </SurfaceLayer>
+</FeelableSurface>

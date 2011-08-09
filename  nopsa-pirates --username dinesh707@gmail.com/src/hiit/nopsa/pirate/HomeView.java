@@ -3,6 +3,10 @@ package hiit.nopsa.pirate;
 import java.io.IOException;
 import java.util.Date;
 
+import com.senseg.effect.EffectManager;
+import com.senseg.effect.FeelableSurface;
+import com.senseg.effect.effects.DragAndDropCollection;
+
 //import com.senseg.effect.EffectManager;
 //import com.senseg.effect.FeelableSurface;
 //import com.senseg.effect.effects.DragAndDropCollection;
@@ -40,7 +44,9 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 	private boolean doorOpening = false;
 	private int door_x = 512;
 	private Bitmap day_sea = null, door_left = null, door_right = null;
-	//private EffectManager manager;
+	private EffectManager manager;
+	private FeelableSurface mSurface;
+	private DragAndDropCollection mDrag;
 	private Bitmap color_wheel = null;
 	
 
@@ -89,7 +95,6 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			canvas.drawBitmap(beam, 0, 0, beam_paint);
 			beam = BitmapFactory.decodeResource(getResources(), R.drawable.left_bg_mask);
 			canvas.drawBitmap(beam, 0, 0, beam_paint);
-			//canvas.drawText("          Exit              About", 0, 305, text_paint);
 		}
 	}
 	
@@ -99,18 +104,20 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		door_left = BitmapFactory.decodeResource(getResources(), R.drawable.maindoor_left);
 		door_right = BitmapFactory.decodeResource(getResources(), R.drawable.maindoor_right);
 		color_wheel  = BitmapFactory.decodeResource(getResources(), R.drawable.color_wheel);
-		Log.d(TAG,"AAAAA  IM Insde thread !!!!!!!!!!!!!!!!!");
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				Log.d(TAG,"CCCC IM Insde thread !!!!!!!!!!!!!!!!!");
 				while (door_x>0) {
-					Log.d(TAG,"BBB IM Insde thread !!!!!!!!!!!!!!!!!"+door_x);
 					door_x = door_x-1;
 					android.os.SystemClock.sleep(2);
 				}
 			}
 		}).start();
+		//===Loading Effect 
+		manager = (EffectManager) mainActivity.getSystemService(mainActivity.EFFECT_SERVICE);
+		mSurface = new FeelableSurface(this.getContext(), manager, R.xml.sample2);
+		mDrag = DragAndDropCollection.load(mainActivity, manager);
+		
 	}
 	
 	private Bitmap rotateImage(Bitmap inputImg, int angle){
@@ -123,7 +130,20 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
-		Log.d(TAG,"Ontouch Called !!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		if((510<(me.getX())&&(me.getX()<514)))
+				mDrag.pop.play();
+		
+		if (redButtonPressed||greenButtonPressed)
+			if((me.getY()<330)&&(270<me.getY())){
+				try{
+					//mDrag.dragOccupied.play(); <_WORKS
+					//mDrag.drop.play(); <-Dont feel but heare sound
+					//mDrag.pop  works <_
+					//mDrag.tick.play(); <-dont feel bu heare sound>
+					mDrag.dragOccupied.play();
+					Log.d(TAG,"EFFECTS ARE PRINTING-------------------------");
+				}catch(NullPointerException ne){}
+			}
 		if (me.getPointerCount()>1){
 			PointerCoords pc1 = new PointerCoords();
 			me.getPointerCoords(0, pc1);
@@ -131,6 +151,9 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			me.getPointerCoords(1, pc2);
 			if (((pc1.x-512)*(pc2.x-512))<0){
 				door_x = cartDist((int)pc1.x, (int)pc1.y, (int)pc2.x, (int)pc2.y)/2;
+				if (door_x<125){
+					mDrag.tick.play();
+				}
 				//===========HAPTICS=======
 				//manager = (EffectManager) mainActivity.getSystemService(mainActivity.EFFECT_SERVICE);
 				//DragAndDropCollection mDrag = DragAndDropCollection.load(mainActivity, manager);
@@ -147,7 +170,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			//========== End of test haptics
 		}
 		
-		if ((door_x>150)&&(me.getAction()==MotionEvent.ACTION_UP)){
+		if ((door_x>120)&&(me.getAction()==MotionEvent.ACTION_UP)){
 			while (door_x<512){
 				door_x = door_x+1;
 				android.os.SystemClock.sleep(5);
