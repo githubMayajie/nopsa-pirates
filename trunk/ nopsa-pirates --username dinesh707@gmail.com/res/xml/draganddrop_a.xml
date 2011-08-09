@@ -1,0 +1,16 @@
+<EffectCollection class="DragAndDropCollection">
+	<EffectBundle name="pop">
+		<Tixel effect="@android:string/pulse_long_double_chopped" />
+	</EffectBundle>
+	<EffectBundle name="drag">
+	</EffectBundle>
+	<EffectBundle name="dragOccupied">
+		<Tixel effect="@android:string/pulse_medium_double" />
+	</EffectBundle>
+	<EffectBundle name="drop">
+		<Tixel effect="@android:string/pulse_long_double_chopped" />
+	</EffectBundle>
+	<EffectBundle name="tick">
+		<Tixel effect="@android:string/pulse_short" />
+	</EffectBundle>
+</EffectCollection>

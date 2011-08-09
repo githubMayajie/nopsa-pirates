@@ -247,8 +247,7 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 						c.setTag(tag_string);
 						c.setScore(0);
 						c.setLast_img_marked(1);
-						GameStatus.getGameStatusObject().addCollectableFromId(
-								keyboardHomeActivity.getIntent().getExtras().getInt("type"), c);
+						GameStatus.getGameStatusObject().addCollectableFromId(keyboardHomeActivity.getIntent().getExtras().getInt("type"), c);
 						keyboardHomeActivity.finish();
 					}
 					else{

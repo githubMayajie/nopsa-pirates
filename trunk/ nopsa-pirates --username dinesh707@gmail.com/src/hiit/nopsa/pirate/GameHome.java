@@ -2,6 +2,7 @@ package hiit.nopsa.pirate;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -15,6 +16,7 @@ public class GameHome extends Activity{
 	
 	private GameHomeView gameHomeView;
 	private final String TAG = "NOPSA-P";
+	private MediaPlayer mPlayer = null;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -38,9 +40,32 @@ public class GameHome extends Activity{
 		}
 	}
 	
+	private void playSound(){
+		new Thread(new Runnable() {
+			public void run() {
+				try{
+					mPlayer = MediaPlayer.create(GameHome.this, R.raw.sailing_sound);
+					mPlayer.setLooping(true);
+					mPlayer.start();
+					while(mPlayer.isPlaying()){
+						android.os.SystemClock.sleep(100);
+					}
+				}catch(Exception e){
+					Log.d(TAG,"ERROR PLAYING");
+					e.printStackTrace();
+				}
+			}}).start();
+	}
+	
+	
+	
 	@Override
 	public void onPause()
 	{
+		if (mPlayer!=null){
+			mPlayer.stop();
+			mPlayer = null;
+		}
 		Log.d(TAG,"GameHome:Activity:onPause() CALLED");
 	    super.onPause();
 	}
@@ -48,6 +73,7 @@ public class GameHome extends Activity{
 	@Override
 	public void onResume()
 	{
+		playSound();
 		gameHomeView.gameResumeFromPopulateItems();
 		Log.d(TAG,"GameHome:Activity:onResume() CALLED");
 	    super.onResume();

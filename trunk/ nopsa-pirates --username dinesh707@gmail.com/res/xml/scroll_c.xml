@@ -1,0 +1,20 @@
+<EffectCollection class="ScrollCollection">
+	<EffectBundle name="start">
+		<Tixel effect="@android:string/pulse_long_double_chopped" />
+	</EffectBundle>
+	<EffectBundle name="scroll">
+		<Tixel effect="" />
+	</EffectBundle>
+	<EffectBundle name="tick">
+		<Tixel effect="" ></Tixel>
+	</EffectBundle>
+	<EffectBundle name="endReached">
+		<Tixel effect="" />
+	</EffectBundle>
+	<EffectBundle name="overscroll">
+		<Tixel effect="" />
+	</EffectBundle>
+	<EffectBundle name="overscrollRelease">
+	</EffectBundle>
+	<EffectBundle name="fling" />
+</EffectCollection>

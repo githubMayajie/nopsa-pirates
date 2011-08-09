@@ -1,0 +1,9 @@
+<EffectCollection class="UnlockCollection">
+	<EffectBundle name="tick">
+		<Tixel effect="@android:string/pulse_long" />
+	</EffectBundle>
+	<EffectBundle name="unlock">
+		<Tixel effect="@android:string/pulse_long_double_chopped" />
+		<Vibra duration="50" />
+	</EffectBundle>
+</EffectCollection>
