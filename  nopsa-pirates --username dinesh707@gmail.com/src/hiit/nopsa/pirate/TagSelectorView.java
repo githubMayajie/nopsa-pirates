@@ -260,6 +260,14 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 		if(me.getAction() == MotionEvent.ACTION_UP){
 			if ((selectedTag>=0)&&(me.getX()<550)){
 				tag_string = tag_string + "+" + tags.remove(selectedTag).tag;
+				// Auto Close the window when person selects a tag
+				Collectable c  = new Collectable();
+				c.setIcon_url(url.toString().replace("photo", "square")); 		
+				c.setTag(tag_string);
+				c.setScore(0);
+				c.setLast_img_marked(1);
+				GameStatus.getGameStatusObject().addCollectableFromId(keyboardHomeActivity.getIntent().getExtras().getInt("type"), c);
+				keyboardHomeActivity.finish();
 			}
 			selectedTag = -1;
 			btn_state = 0;

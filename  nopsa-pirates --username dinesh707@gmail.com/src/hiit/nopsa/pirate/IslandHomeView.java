@@ -158,12 +158,15 @@ public class IslandHomeView extends SurfaceView implements SurfaceHolder.Callbac
 	int selected_x,selected_y;
 	
 	private Bitmap plus_icon;
+	private GameStatus gameStatus;
+	Paint icon_paint;
 	
 
 	public IslandHomeView(Context context, Activity activity) {
 		super(context);
 		islandHomeActivity = activity;
 		getHolder().addCallback(this);
+		gameStatus = GameStatus.getGameStatusObject();
 		_thread = new ViewControllerThread(getHolder(), this);
 		setFocusable(true);
 		infoDialog();
@@ -199,7 +202,7 @@ public class IslandHomeView extends SurfaceView implements SurfaceHolder.Callbac
 		catch (NullPointerException ne) {
 			Log.d(TAG,"sea1 or ship Bitmaps are NULL");
 		}
-		
+		Paint icon_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		if (showMenuButtons){
 			//============ Show Selected Button
 			if (selectedKey>0){
@@ -233,7 +236,6 @@ public class IslandHomeView extends SurfaceView implements SurfaceHolder.Callbac
 				canvas.drawCircle(selected_x, selected_y, 100, button_select);
 			}
 			//==========Draw Animal, Slaves, and Food Icons & BACK icon
-			Paint icon_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 			icon_paint.setStyle(Style.FILL);			
 			plus_icon = BitmapFactory.decodeResource(getResources(), R.drawable.collect_icon);
 			icons = BitmapFactory.decodeResource(getResources(), R.drawable.animal_icon);
@@ -252,13 +254,41 @@ public class IslandHomeView extends SurfaceView implements SurfaceHolder.Callbac
 			canvas.drawBitmap(icons,20,480 , icon_paint);			
 		}
 		
-		//=========Write(Draw) Text (Ship Class & etc..)
+		//============Draw Game Status BOX========
+		int food_t;
 		Paint text_paint = new Paint();
 		text_paint.setColor(Color.BLACK);
 		text_paint.setStyle(Style.FILL);
 		text_paint.setAntiAlias(true);
-		text_paint.setTextSize(20);
-		text_paint.setTypeface(Typeface.SANS_SERIF);
+		text_paint.setTypeface(Typeface.SANS_SERIF);		
+		Paint glow_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		text_paint.setTextSize(15);
+		text_paint.setColor(Color.BLACK);
+		//canvas.drawRect(600,480,880,580, glow_paint);
+		Bitmap backPaper = BitmapFactory.decodeResource(getResources(), R.drawable.game_status_back);
+		canvas.drawBitmap(backPaper, 680, 5, icon_paint);
+		//glow_paint.setColor(Color.YELLOW);//glow_paint.setColor(Color.rgb(255-(temp_t/600)*255, (temp_t/600)*255, 0));
+		canvas.drawText("Hurry up Sailor! Get back to sea ..", 710, 55, text_paint);
+		if ((gameStatus.getNum_animals()+gameStatus.getNum_slaves()*2+gameStatus.getNum_crew()*5)==0)
+			food_t = 25;
+		else{
+			food_t = gameStatus.getTotal_food_score() / (gameStatus.getNum_animals()+gameStatus.getNum_slaves()*2+gameStatus.getNum_crew()*5);
+			food_t = Math.min(food_t, 25);
+		}
+		glow_paint.setColor(Color.rgb(255-(food_t*255/25), (food_t*255/25), 0));
+		canvas.drawRect(705,60,705+(food_t*270/25),85, glow_paint);
+		canvas.drawText("Food",710,80,text_paint);
+		text_paint.setTextSize(25);
+		Bitmap small = BitmapFactory.decodeResource(getResources(), R.drawable.crew_small);
+		canvas.drawBitmap(small, 710, 95 , icon_paint);
+		canvas.drawText(""+gameStatus.getNum_crew(),740,120,text_paint);
+		small = BitmapFactory.decodeResource(getResources(), R.drawable.slave_small);
+		canvas.drawBitmap(small, 790, 95 , icon_paint);
+		canvas.drawText(""+gameStatus.getNum_slaves(),820,120,text_paint);
+		small = BitmapFactory.decodeResource(getResources(), R.drawable.animal_small);
+		canvas.drawBitmap(small, 870, 95 , icon_paint);
+		canvas.drawText(""+gameStatus.getNum_animals(),900,120,text_paint);
+		//=== End of game status box
 		
 	}
 	

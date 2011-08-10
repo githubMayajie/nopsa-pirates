@@ -33,7 +33,7 @@ public class CollectItemsImageGenarator {
 		image_fileId = new ArrayList<Integer>();
 		
 		no_img = BitmapFactory.decodeResource(parentView.getResources(), R.drawable.no_img);
-		for (int i=0;i<50;i++){
+		for (int i=0;i<25;i++){
 			images.add(no_img);
 			image_urls.add(null);
 			image_fileId.add(null);
@@ -85,7 +85,7 @@ public class CollectItemsImageGenarator {
 					Bitmap icon_bitmap = null;
 					URL url = null;
 					int fileId=0;
-					for (int i=0;i<50;i++){
+					for (int i=0;i<25;i++){
 						images.remove(0);
 						image_urls.remove(0);
 						image_fileId.remove(0);
@@ -140,7 +140,7 @@ public class CollectItemsImageGenarator {
 						Bitmap icon_bitmap = null;
 						URL url = null;
 						int fileId=0;
-						for (int i=oldLoaction+50;i<currentLocation+50;i++){
+						for (int i=oldLoaction+25;i<currentLocation+25;i++){
 							images.remove(0);
 							image_urls.remove(0);
 							image_fileId.remove(0);

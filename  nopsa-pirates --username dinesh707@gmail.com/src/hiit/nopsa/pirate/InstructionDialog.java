@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnTouchListener;
 import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
 
@@ -34,6 +35,14 @@ public class InstructionDialog {
 		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		
 		View layout = inflater.inflate(R.layout.instructions, (ViewGroup) activity.findViewById(R.id.layout_root));
+		layout.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				Log.d(TAG,"Hello Tocuhed !!!");
+	      	    dissmissAlert();
+				return false;
+			}
+		});
 		
 		Typeface font = Typeface.createFromAsset(activity.getAssets(),"fonts/pirates.ttf" ); 
 		TextView text2 = (TextView) layout.findViewById(R.id.title);

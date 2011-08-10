@@ -100,13 +100,13 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		glow_paint.setAlpha(100);
 		int count=0;
 		for (Collectable collectable: gameStatus.getCollectableFromId(collectableType)){
-			// TODO Only Show some number of items
-			// Becouse it will overflow the screen after 9 elements
-			canvas.drawRect(15+(count*90), 485, 100+(count*90), 570, glow_paint);
-			canvas.drawBitmap(collectable.getIcon_bitmap(), 20+(count*90), 490 , back_paint);
-			canvas.drawText(""+collectable.getScore(),45+(count*90), 585, text_paint);
-			count = count+1;
-    	}
+				// TODO Only Show some number of items
+				// Becouse it will overflow the screen after 9 elements
+				canvas.drawRect(15+(count*90), 485, 100+(count*90), 570, glow_paint);
+				canvas.drawBitmap(collectable.getIcon_bitmap(), 20+(count*90), 490 , back_paint);
+				canvas.drawText(""+collectable.getScore(),45+(count*90), 585, text_paint);
+				count = count+1;
+	    }
 		//==========Draw Image to mark boundaries
 		if (popImageManager!=null){
 			bitmap = popImageManager.getImagetoMarkBonderies(selectedColectable.getLast_img_marked());
@@ -176,7 +176,7 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 			food_t = gameStatus.getTotal_food_score() / (gameStatus.getNum_animals()+gameStatus.getNum_slaves()*2+gameStatus.getNum_crew()*5);
 			food_t = Math.min(food_t, 25);
 		}
-		glow_paint.setColor(Color.rgb(255-(food_t/25)*255, (food_t/25)*255, 0));
+		glow_paint.setColor(Color.rgb(255-(food_t*255/25), (food_t*255/25), 0));
 		canvas.drawRect(705,60,705+(food_t*270/25),85, glow_paint);
 		canvas.drawText("Food",710,80,text_paint);
 		text_paint.setTextSize(25);
