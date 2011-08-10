@@ -45,10 +45,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 	private int door_x = 512;
 	private Bitmap day_sea = null, door_left = null, door_right = null;
 	private EffectManager manager;
-	private FeelableSurface mSurface;
-	private DragAndDropCollection mDrag;
-	private Bitmap color_wheel = null;
-	
+	private FeelableSurface mSurface_1,mSurface_2,mSurface_3,mSurface_4,mSurface_5;
 
 	public HomeView(Context context, Activity activity) {
 		super(context);
@@ -103,7 +100,6 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		day_sea = BitmapFactory.decodeResource(getResources(), R.drawable.day_sea);
 		door_left = BitmapFactory.decodeResource(getResources(), R.drawable.maindoor_left);
 		door_right = BitmapFactory.decodeResource(getResources(), R.drawable.maindoor_right);
-		color_wheel  = BitmapFactory.decodeResource(getResources(), R.drawable.color_wheel);
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -115,9 +111,11 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		}).start();
 		//===Loading Effect 
 		manager = (EffectManager) mainActivity.getSystemService(mainActivity.EFFECT_SERVICE);
-		mSurface = new FeelableSurface(this.getContext(), manager, R.xml.sample2);
-		mDrag = DragAndDropCollection.load(mainActivity, manager);
-		
+		mSurface_1 = new FeelableSurface(this.getContext(), manager, R.xml.a_circular_menu_buttons_green_red);
+		mSurface_2 = new FeelableSurface(this.getContext(), manager, R.xml.b_door_open_stretch);
+		mSurface_3 = new FeelableSurface(this.getContext(), manager, R.xml.c_door_line);
+		mSurface_4 = new FeelableSurface(this.getContext(), manager, R.xml.d_menu_bar_slide);
+		mSurface_5 = new FeelableSurface(this.getContext(), manager, R.xml.e_menu_buttons_finger);
 	}
 	
 	private Bitmap rotateImage(Bitmap inputImg, int angle){
@@ -130,18 +128,20 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
-		if((510<(me.getX())&&(me.getX()<514)))
-				mDrag.pop.play();
-		
+		if((510<(me.getX())&&(me.getX()<514))){
+			//3. door line..this is the line between the 2 doors when its shut..a feeling as you pass finger over it
+			Log.d(TAG,"Haptic Feeling Type 3");
+			mSurface_3.setActive(true);
+		    mSurface_3.onTouchEvent(me);
+		}
+					
 		if (redButtonPressed||greenButtonPressed)
 			if((me.getY()<330)&&(270<me.getY())){
 				try{
-					//mDrag.dragOccupied.play(); <_WORKS
-					//mDrag.drop.play(); <-Dont feel but heare sound
-					//mDrag.pop  works <_
-					//mDrag.tick.play(); <-dont feel bu heare sound>
-					mDrag.dragOccupied.play();
-					Log.d(TAG,"EFFECTS ARE PRINTING-------------------------");
+					//4. menu bar slide…as finger slides over the menu bar
+					Log.d(TAG,"Haptic Feeling Type 4");
+					mSurface_4.setActive(true);
+				    mSurface_4.onTouchEvent(me);
 				}catch(NullPointerException ne){}
 			}
 		if (me.getPointerCount()>1){
@@ -152,7 +152,10 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			if (((pc1.x-512)*(pc2.x-512))<0){
 				door_x = cartDist((int)pc1.x, (int)pc1.y, (int)pc2.x, (int)pc2.y)/2;
 				if (door_x<125){
-					mDrag.tick.play();
+					//2. door open stretch..as you opn the door, the stretchy feeling
+					Log.d(TAG,"Haptic Feeling Type 2");
+					mSurface_2.setActive(true);
+				    mSurface_2.onTouchEvent(me);
 				}
 				//===========HAPTICS=======
 				//manager = (EffectManager) mainActivity.getSystemService(mainActivity.EFFECT_SERVICE);
@@ -189,10 +192,48 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 				greenButtonPressed = true;
 			}
 		}
+		
 		if (me.getAction() == MotionEvent.ACTION_MOVE){
-			
-			
+			if (cartDist(277, 300, (int) me.getX(), (int) me.getY()) < 50){
+				// Reached Red Button Area
+				//1. circular menu, just when finger moves over those red and green buttons.
+				Log.d(TAG,"Haptic Feeling Type 1");
+				mSurface_1.setActive(true);
+			    mSurface_1.onTouchEvent(me);
+			}
+			if (cartDist(744, 300, (int) me.getX(), (int) me.getY()) < 50){
+				// Reached Green Button Area
+				//1. circular menu, just when finger moves over those red and green buttons.
+				Log.d(TAG,"Haptic Feeling Type 1");
+				mSurface_1.setActive(true);
+			    mSurface_1.onTouchEvent(me);				
+			}
+			if ((greenButtonPressed)&&(cartDist(830, 300, (int) me.getX(), (int)me.getY())<50)){
+				// 5. menu bar button finger..as your finger goes over info / about etc..
+				Log.d(TAG,"Haptic Feeling Type 5");
+				mSurface_5.setActive(true);
+			    mSurface_5.onTouchEvent(me);	
+			}
+			if ((greenButtonPressed)&&(cartDist(940, 300, (int) me.getX(), (int)me.getY())<50)){
+				// 5. menu bar button finger..as your finger goes over info / about etc..
+				Log.d(TAG,"Haptic Feeling Type 5");
+				mSurface_5.setActive(true);
+			    mSurface_5.onTouchEvent(me);	
+			}
+			if ((redButtonPressed)&&(cartDist(80, 300, (int) me.getX(), (int)me.getY())<50)){
+				// 5. menu bar button finger..as your finger goes over info / about etc..
+				Log.d(TAG,"Haptic Feeling Type 5");
+				mSurface_5.setActive(true);
+			    mSurface_5.onTouchEvent(me);	
+			}
+			if ((redButtonPressed)&&(cartDist(190, 300, (int) me.getX(), (int)me.getY())<50)){
+				// 5. menu bar button finger..as your finger goes over info / about etc..
+				Log.d(TAG,"Haptic Feeling Type 5");
+				mSurface_5.setActive(true);
+			    mSurface_5.onTouchEvent(me);	
+			}
 		}
+		
 		if (me.getAction() == MotionEvent.ACTION_UP){
 			if (door_x<500)
 				door_x = 0;
