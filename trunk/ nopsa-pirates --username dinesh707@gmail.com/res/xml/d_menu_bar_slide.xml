@@ -1,0 +1,10 @@
+<FeelableSurface>
+  <SurfaceLayer class="SingleTouchSurfaceLayer"
+    distance="100"
+    offset="0"
+    slope="0" >
+    <EffectBundle>
+      <Tixel effect="[1 1 200 40 23 2 4]" />
+    </EffectBundle>
+  </SurfaceLayer>
+</FeelableSurface>
