@@ -116,6 +116,10 @@ package hiit.nopsa.pirate;
 
 import java.security.acl.LastOwnerException;
 import java.util.Date;
+
+import com.senseg.effect.EffectManager;
+import com.senseg.effect.FeelableSurface;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -159,7 +163,11 @@ public class IslandHomeView extends SurfaceView implements SurfaceHolder.Callbac
 	
 	private Bitmap plus_icon;
 	private GameStatus gameStatus;
-	Paint icon_paint;
+	private Paint icon_paint;
+	
+	private EffectManager manager;
+	private FeelableSurface mSurface_drag;
+	private FeelableSurface mSurface_mainButton;
 	
 
 	public IslandHomeView(Context context, Activity activity) {
@@ -301,6 +309,16 @@ public class IslandHomeView extends SurfaceView implements SurfaceHolder.Callbac
 			selectedKey = 0;
 		}
 		if (me.getAction() == MotionEvent.ACTION_MOVE) {
+			if (cartDist(501, 399, (int)me.getX(), (int)me.getY())<90){
+				// feeling of main button
+				mSurface_mainButton.setActive(true);
+				mSurface_mainButton.onTouchEvent(me);
+			}
+			if (showMenuButtons){
+				// If the main button is clicked you start feeling drag
+				mSurface_drag.setActive(true);
+				mSurface_drag.onTouchEvent(me);
+			}
 			//TODO
 			if (cartDist(501, 399, (int)me.getX(), (int)me.getY())>70){
 				angle = getAngle(501, 399, (int)me.getX(), (int)me.getY());
@@ -395,6 +413,10 @@ public class IslandHomeView extends SurfaceView implements SurfaceHolder.Callbac
 		sea1 = BitmapFactory.decodeResource(getResources(), R.drawable.sea_island);
 		ship = BitmapFactory.decodeResource(getResources(), R.drawable.ship_look);
 		button = BitmapFactory.decodeResource(getResources(), R.drawable.center_button);
+		
+		manager = (EffectManager) islandHomeActivity.getSystemService(islandHomeActivity.EFFECT_SERVICE);
+		mSurface_drag = new FeelableSurface(this.getContext(), manager, R.xml.screen2_drag);
+		mSurface_mainButton = new FeelableSurface(this.getContext(), manager, R.xml.screen2_mainpiratebutton);
 	}
 	
 	private void infoDialog(){

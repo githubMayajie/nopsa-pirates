@@ -2,6 +2,10 @@ package hiit.nopsa.pirate;
 
 import java.util.Date;
 import java.util.Random;
+
+import com.senseg.effect.EffectManager;
+import com.senseg.effect.FeelableSurface;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -47,6 +51,10 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 	private long slave_timer = 0;
 	private long crew_timer = 0;
 	private Paint icon_paint;
+	
+	private EffectManager manager;
+	private FeelableSurface mSurface_drag;
+	private FeelableSurface mSurface_mainButton;
 	
 	
 	public GameHomeView(Context context, Activity activity) {
@@ -264,6 +272,16 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 			selectedKey = 0;
 		}
 		if (me.getAction() == MotionEvent.ACTION_MOVE) {
+			if (cartDist(501, 399, (int)me.getX(), (int)me.getY())<90){
+				// feeling of main button
+				mSurface_mainButton.setActive(true);
+				mSurface_mainButton.onTouchEvent(me);
+			}
+			if (showMenuButtons){
+				// If the main button is clicked you start feeling drag
+				mSurface_drag.setActive(true);
+				mSurface_drag.onTouchEvent(me);
+			}
 			if (cartDist(501, 399, (int)me.getX(), (int)me.getY())>70){
 				angle = getAngle(501, 399, (int)me.getX(), (int)me.getY());
 				if ((angle<-1)&&(angle>-60))
@@ -462,6 +480,10 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 		sea1 = BitmapFactory.decodeResource(getResources(), R.drawable.day_sea);
 		ship = BitmapFactory.decodeResource(getResources(), R.drawable.ship_look);
 		button = BitmapFactory.decodeResource(getResources(), R.drawable.center_button);
+		
+		manager = (EffectManager) gameHomeActivity.getSystemService(gameHomeActivity.EFFECT_SERVICE);
+		mSurface_drag = new FeelableSurface(this.getContext(), manager, R.xml.screen2_drag);
+		mSurface_mainButton = new FeelableSurface(this.getContext(), manager, R.xml.screen2_mainpiratebutton);
 	}
 	
 	private void InfoDialog(){

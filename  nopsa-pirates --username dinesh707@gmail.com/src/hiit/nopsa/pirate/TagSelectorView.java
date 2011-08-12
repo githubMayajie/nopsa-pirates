@@ -16,6 +16,9 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.senseg.effect.EffectManager;
+import com.senseg.effect.FeelableSurface;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -50,6 +53,8 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 	private int btn_lastY;
 	private URL url;
 	private boolean imageGlow = false;
+	private EffectManager manager;
+	private FeelableSurface mSurface_dots,mSurface_sticky;
 
 	
 	public TagSelectorView(Context context, Activity activity) {
@@ -57,9 +62,16 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 		keyboardHomeActivity = activity;
 		getHolder().addCallback(this);
 		loadImageandTags();
+		loadEffects();
 		_thread = new ViewControllerThread(getHolder(), this);
 		setFocusable(true);
 		System.gc();
+	}
+	
+	private void loadEffects(){
+		manager = (EffectManager) keyboardHomeActivity.getSystemService(keyboardHomeActivity.EFFECT_SERVICE);
+		mSurface_dots = new FeelableSurface(this.getContext(), manager, R.xml.eve_bumps_eachdot_slide4);
+		mSurface_sticky = new FeelableSurface(this.getContext(), manager, R.xml.eveidea_stickysurface_slide4);
 	}
 	
 	private void loadImageandTags(){
@@ -185,6 +197,8 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 		// Controling Number of Tags shown in screen
 		if ((me.getAction() == MotionEvent.ACTION_MOVE)||(me.getAction() == MotionEvent.ACTION_DOWN)){
 			if ((me.getX()>570)&&(me.getY()>530)){
+				mSurface_dots.setActive(true);
+			    mSurface_dots.onTouchEvent(me);
 				showfactor = ((int) (me.getX()-570)/34)+1;
 				if (me.getX()>920)
 					showfactor = 0;
@@ -230,8 +244,12 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 			if (selectedTag>=0){
 				tags.get(selectedTag).x = (int) me.getX();
 				tags.get(selectedTag).y = Math.min(520,(int) me.getY());
-				if (me.getX()<550)
+				if (me.getX()<550){
 					imageGlow = true;
+					//TODO ADD EFFECTS
+					mSurface_sticky.setActive(true);
+					mSurface_sticky.onTouchEvent(me);
+				}
 			}
 			if (showfactor<0){
 				if ((btn_state==1)&&((int) me.getY()>btn_lastY)){

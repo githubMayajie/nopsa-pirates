@@ -4,7 +4,7 @@
     offset="0"
     slope="0" >
     <EffectBundle>
-      <Tixel effect="@android:string/pulse_long_double_chopped" />
+      <Tixel effect="[1 1 20 86 0 23 2]" />
     </EffectBundle>
   </SurfaceLayer>
 </FeelableSurface>

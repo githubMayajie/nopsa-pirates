@@ -1,11 +1,10 @@
 <FeelableSurface>
-  <!-- TODO: make it dependent on the width somehow -->
   <SurfaceLayer class="SingleTouchSurfaceLayer"
-    distance="32"
+    distance="100"
     offset="0"
     slope="0" >
     <EffectBundle>
-      <Tixel effect="@android:string/pulse_long" />
+      <Tixel effect="[1 1 463 80 32 2 5]" />
     </EffectBundle>
   </SurfaceLayer>
 </FeelableSurface>

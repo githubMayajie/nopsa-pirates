@@ -1,6 +1,10 @@
 package hiit.nopsa.pirate;
 
 import java.net.URL;
+
+import com.senseg.effect.EffectManager;
+import com.senseg.effect.FeelableSurface;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +37,8 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 	private int moving_imgId;
 	private boolean scrolingStarted = false;
 	private int scroll_val = 0;
+	private EffectManager manager;
+	private FeelableSurface mSurface_sticky;
 	
 	public CollectItemsView(Context context, Activity activity) {
 		super(context);
@@ -204,6 +210,10 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 						Log.d(TAG,"============== Image Add New =====================");
 						currentLoaction = currentLoaction+1;
 					}
+				if (me.getY()>470){
+					mSurface_sticky.setActive(true);
+					mSurface_sticky.onTouchEvent(me);
+				}
 		}
 		if (me.getAction() == MotionEvent.ACTION_UP) {
 			if ((me.getY()>470)&&(img_id>=0)&&(moving_url!=null)){
@@ -230,6 +240,9 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 	private void loadBitmaps(){
 		System.gc();
 		background = BitmapFactory.decodeResource(getResources(), R.drawable.blackship_background);
+		
+		manager = (EffectManager) collectItemsActivity.getSystemService(collectItemsActivity.EFFECT_SERVICE);
+		mSurface_sticky = new FeelableSurface(this.getContext(), manager, R.xml.eveidea_stickysurface_slide2);
 	}
 	
 	private void infoDialog(){
