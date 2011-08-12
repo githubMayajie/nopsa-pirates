@@ -21,6 +21,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import com.senseg.effect.EffectManager;
+import com.senseg.effect.FeelableSurface;
+
 import hiit.nopsa.pirate.CollectItemsView.ViewControllerThread;
 import android.app.Activity;
 import android.content.Context;
@@ -60,6 +63,8 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 	private String boundary_str = "";
 	private boolean anmatePlus1 = false;
 	private double plus1_x=100,plus1_y=100;
+	private EffectManager manager;
+	private FeelableSurface mSurface_dragImg;
 	
 	public PopulateItemsView(Context context, Activity activity) {
 		super(context);
@@ -245,11 +250,15 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		}
 		if (me.getAction() == MotionEvent.ACTION_MOVE){
 			if (imageDragging){
+				//TODO ADD HAPTIC
+				mSurface_dragImg.setActive(true);
+				mSurface_dragImg.onTouchEvent(me);
 				imgDrag_x = (int)me.getX()-bitmap.getWidth()-50;
+				/*
 				if (cartDist((int)me.getX(), (int)me.getY(), 850, 120)<75){
 					squarePaint = new Paint();
 					squarePaint.setColor(Color.GREEN);
-				}
+				}*/
 				if (cartDist((int)me.getX(), (int)me.getY(), 850, 320)<75){
 					squarePaint = new Paint();
 					squarePaint.setColor(Color.RED);
@@ -436,6 +445,9 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		trash_icon = BitmapFactory.decodeResource(getResources(), R.drawable.trash_icon);
 		back_icon = BitmapFactory.decodeResource(getResources(), R.drawable.back_icon);
 		plus1 = BitmapFactory.decodeResource(getResources(), R.drawable.plus1);
+		
+		manager = (EffectManager) populateItemsActivity.getSystemService(populateItemsActivity.EFFECT_SERVICE);
+		mSurface_dragImg = new FeelableSurface(this.getContext(), manager, R.xml.a_circular_menu_buttons_green_red);
 	}
 	
 	private int cartDist(int x1, int y1, int x2, int y2){
