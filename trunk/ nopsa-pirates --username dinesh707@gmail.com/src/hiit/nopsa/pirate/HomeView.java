@@ -43,9 +43,10 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 	private boolean greenButtonPressed = false;
 	private boolean doorOpening = false;
 	private int door_x = 512;
-	private Bitmap day_sea = null, door_left = null, door_right = null;
+	private Bitmap day_sea = null, door_left = null, door_right = null, glow_red=null, glow_green=null, ship, button;
 	private EffectManager manager;
 	private FeelableSurface mSurface_1,mSurface_2,mSurface_3,mSurface_4,mSurface_5;
+	private boolean red_a=false,red_b=false,green_a=false,green_b=false;
 
 	public HomeView(Context context, Activity activity) {
 		super(context);
@@ -68,6 +69,8 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		//=========Draw Next Screen Sea 
 		Paint sea_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		canvas.drawBitmap(day_sea, 0, 0, sea_paint);
+		canvas.drawBitmap(ship, 0, 0, sea_paint);
+		canvas.drawBitmap(button, 416,314, sea_paint);
 		
 		//==========Draw Background Image
 		Paint home_wall_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -93,6 +96,16 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			beam = BitmapFactory.decodeResource(getResources(), R.drawable.left_bg_mask);
 			canvas.drawBitmap(beam, 0, 0, beam_paint);
 		}
+		
+		//=========Draw Selection When finger goes on top of them
+		if (red_a)
+			canvas.drawBitmap(glow_red, -20, 200, beam_paint);
+		if (red_b)
+			canvas.drawBitmap(glow_red, 90, 200, beam_paint);
+		if (green_a)
+			canvas.drawBitmap(glow_green, 730, 200, beam_paint);
+		if (green_b)
+			canvas.drawBitmap(glow_green, 840, 200, beam_paint);
 	}
 	
 	private void loadBitmaps(){
@@ -100,6 +113,10 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		day_sea = BitmapFactory.decodeResource(getResources(), R.drawable.day_sea);
 		door_left = BitmapFactory.decodeResource(getResources(), R.drawable.maindoor_left);
 		door_right = BitmapFactory.decodeResource(getResources(), R.drawable.maindoor_right);
+		glow_green = BitmapFactory.decodeResource(getResources(), R.drawable.glow_green);
+		glow_red = BitmapFactory.decodeResource(getResources(), R.drawable.glow_red);
+		ship = BitmapFactory.decodeResource(getResources(), R.drawable.ship_look);
+		button = BitmapFactory.decodeResource(getResources(), R.drawable.center_button);
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -128,7 +145,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
-		if((510<(me.getX())&&(me.getX()<514))){
+		if((500<(me.getX())&&(me.getX()<524))){
 			//3. door line..this is the line between the 2 doors when its shut..a feeling as you pass finger over it
 			Log.d(TAG,"Haptic Feeling Type 3");
 			mSurface_3.setActive(true);
@@ -194,6 +211,10 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		}
 		
 		if (me.getAction() == MotionEvent.ACTION_MOVE){
+			red_a = false;
+			red_b = false;
+			green_a = false;
+			green_b = false;
 			if (cartDist(277, 300, (int) me.getX(), (int) me.getY()) < 50){
 				// Reached Red Button Area
 				//1. circular menu, just when finger moves over those red and green buttons.
@@ -213,24 +234,28 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 				Log.d(TAG,"Haptic Feeling Type 5");
 				mSurface_5.setActive(true);
 			    mSurface_5.onTouchEvent(me);	
+			    green_a = true;
 			}
 			if ((greenButtonPressed)&&(cartDist(940, 300, (int) me.getX(), (int)me.getY())<50)){
 				// 5. menu bar button finger..as your finger goes over info / about etc..
 				Log.d(TAG,"Haptic Feeling Type 5");
 				mSurface_5.setActive(true);
 			    mSurface_5.onTouchEvent(me);	
+			    green_b = true;
 			}
 			if ((redButtonPressed)&&(cartDist(80, 300, (int) me.getX(), (int)me.getY())<50)){
 				// 5. menu bar button finger..as your finger goes over info / about etc..
 				Log.d(TAG,"Haptic Feeling Type 5");
 				mSurface_5.setActive(true);
-			    mSurface_5.onTouchEvent(me);	
+			    mSurface_5.onTouchEvent(me);
+			    red_a = true;
 			}
 			if ((redButtonPressed)&&(cartDist(190, 300, (int) me.getX(), (int)me.getY())<50)){
 				// 5. menu bar button finger..as your finger goes over info / about etc..
 				Log.d(TAG,"Haptic Feeling Type 5");
 				mSurface_5.setActive(true);
-			    mSurface_5.onTouchEvent(me);	
+			    mSurface_5.onTouchEvent(me);
+			    red_b=true;
 			}
 		}
 		
@@ -244,6 +269,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			}
 			if ((greenButtonPressed)&&(cartDist(940, 300, (int) me.getX(), (int)me.getY())<50)){
 				Log.d(TAG,"============ START PRESSED !! ==================");
+				green_b = false;
 				greenButtonPressed = false;
 				while (door_x<512){
 					door_x = door_x+1;
@@ -263,9 +289,12 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			if ((redButtonPressed)&&(cartDist(190, 300, (int) me.getX(), (int)me.getY())<50)){
 				Log.d(TAG,"============ About PRESSED !! ==================");
 			}
-
+			red_a = false;
+			red_b = false;
+			green_a = false;
+			green_b = false;
 			redButtonPressed = false;
-			greenButtonPressed = false;							
+			greenButtonPressed = false;				
 		}		
 		return true;
 	}

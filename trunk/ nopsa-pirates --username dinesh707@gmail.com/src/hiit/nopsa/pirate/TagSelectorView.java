@@ -1,7 +1,5 @@
 package hiit.nopsa.pirate;
 
-import hiit.nopsa.pirate.KeyboardHomeView.ViewControllerThread;
-
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
