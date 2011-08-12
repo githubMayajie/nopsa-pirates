@@ -1,6 +1,6 @@
 <FeelableSurface>
   <SurfaceLayer class="SingleTouchSurfaceLayer"
-    distance="100"
+    distance="40"
     offset="0"
     slope="0" >
     <EffectBundle>

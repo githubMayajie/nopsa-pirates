@@ -9,7 +9,6 @@ import android.view.WindowManager;
 public class KeyboardHome extends Activity {
 
 	private final String TAG = "NOPSA-P";
-	private KeyboardHomeView keyboardHomeView;
 	private TagSelectorView tagSelectorView;
 	
 	

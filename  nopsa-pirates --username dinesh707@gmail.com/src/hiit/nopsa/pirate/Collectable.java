@@ -6,15 +6,18 @@ import java.net.URL;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-
+/**
+ * This class holds data of a Collectable. Game refers all animals, slaves and food are collectables
+ * 
+ * @author Dinesh Wijekoon
+ */
 public class Collectable {
 	
 	private String icon_url; 		// http://nopsa.hiit.fi/viewer/images/square_2675942790_32794abcf1_t.jpg
 	private String tag;				// wine
-	private int score;				// 12  -  When player marks the bonderies he gets a score for item
-	private int last_img_marked;	// 16  -  Will be used to find what image was marked last
+	private int score;				// When player marks the bonderies he gets a score for item
+	private int last_img_marked;	// Will be used to find what image was marked last
 
-	
 	public String getIcon_url() {
 		return icon_url;
 	}

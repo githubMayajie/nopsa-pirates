@@ -105,12 +105,13 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		glow_paint.setAlpha(100);
 		int count=0;
 		for (Collectable collectable: gameStatus.getCollectableFromId(collectableType)){
-				// TODO Only Show some number of items
-				// Becouse it will overflow the screen after 9 elements
 				canvas.drawRect(15+(count*90), 485, 100+(count*90), 570, glow_paint);
 				canvas.drawBitmap(collectable.getIcon_bitmap(), 20+(count*90), 490 , back_paint);
 				canvas.drawText(""+collectable.getScore(),45+(count*90), 585, text_paint);
+				Log.d(TAG,"COUNT>>>>>>>>>>>>> "+count);
 				count = count+1;
+				if (count>8)
+					break;
 	    }
 		//==========Draw Image to mark boundaries
 		if (popImageManager!=null){
@@ -315,16 +316,17 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 			}
 		}
 		if (me.getAction() == MotionEvent.ACTION_UP) {
-			if ((485<me.getY())&&(me.getY()<570)){
-				if (((int)((me.getX()-15)/90)) < gameStatus.getCollectableFromId(collectableType).size()){
-					selectedCollectableXPosition = (int) me.getX();
-					selectedColectable = gameStatus.getCollectableFromId(collectableType).get((int) ((me.getX()-15)/90));
-					popImageManager = new PopulateItemsImageManager(
-							//GameStatus.getGameStatusObject().getCollectableFromId(collectableType).get((int) ((me.getX()-15)/90)), 
-							selectedColectable,
-							this);
+			if (me.getX()<900)
+				if ((485<me.getY())&&(me.getY()<570)){
+					if (((int)((me.getX()-15)/90)) < gameStatus.getCollectableFromId(collectableType).size()){
+						selectedCollectableXPosition = (int) me.getX();
+						selectedColectable = gameStatus.getCollectableFromId(collectableType).get((int) ((me.getX()-15)/90));
+						popImageManager = new PopulateItemsImageManager(
+								//GameStatus.getGameStatusObject().getCollectableFromId(collectableType).get((int) ((me.getX()-15)/90)), 
+								selectedColectable,
+								this);
+					}
 				}
-			}
 			if (squarePaint!=null){
 				String boundary_str = "";
 				if (squarePaint.getColor() == Color.RED){

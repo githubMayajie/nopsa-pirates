@@ -48,6 +48,9 @@ public class GameStatus {
 	// This is set to TRUE when game is on sailing mode
 	private boolean gameOn;
 	
+	// When game is running. This set to false when player exit game
+	public boolean gameIsRunning = true;
+	
 
 	// ================ Made this a SINGLETON ===============================
 	private static GameStatus gameStatus;
@@ -266,6 +269,20 @@ public class GameStatus {
 		this.timeOfNextIsland = timeOfNextIsland;
 	}	
 	
+	private void startAutoSaving(final Context context){
+	//TODO
+		/*	new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (gameIsRunning) {
+					GameStatus.getGameStatusObject().saveGameData(context);
+					android.os.SystemClock.sleep(2);
+				}
+			}
+		}).start();
+	*/
+	}
+	
 	// Load Game Status
 	public void loadGameData(Context context){	
 		String[] gameData;
@@ -315,6 +332,7 @@ public class GameStatus {
 			loadFoodData(context);
 			loadSlaveData(context);
 			loadAnimalData(context);
+			startAutoSaving(context);
 		} catch (FileNotFoundException e) {
 			try {
 				FileOutputStream fos = context.openFileOutput("game.dat", Context.MODE_WORLD_WRITEABLE);

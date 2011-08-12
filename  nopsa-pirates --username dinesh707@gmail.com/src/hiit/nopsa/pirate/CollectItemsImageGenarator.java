@@ -13,6 +13,11 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.View;
 
+/**
+ * This will handle the server calls and managing the images needed to be shown in CollectItemsView.java
+ * 
+ * @author Dinesh Wijekoon
+ */
 public class CollectItemsImageGenarator {
 
 	public ArrayList<Bitmap> images;
@@ -52,6 +57,7 @@ public class CollectItemsImageGenarator {
 			break;
 		}
 	}
+	
 	// This set the current location of first image shows in the screen
 	// Screen shows 24 images starting from currentLocation
 	public void setCurrentLocation(int i){
@@ -132,9 +138,6 @@ public class CollectItemsImageGenarator {
 		}// End of IF
 		else{
 			// code runs when it loads other times
-			//TODO if (currentLocation-oldLoaction>0)
-				//Log.d(TAG,"Current IIIIIIIIIIIIIIIIIIII"+i);
-				//==============================================
 				new Thread(new Runnable() {
 					public void run() {
 						Bitmap icon_bitmap = null;
