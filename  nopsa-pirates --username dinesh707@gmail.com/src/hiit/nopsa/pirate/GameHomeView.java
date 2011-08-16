@@ -16,6 +16,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Typeface;
+import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -263,11 +264,62 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 		//=== End of game status box
 	}
 	
+	private void playSelectMenuItem(){
+		//==Start Plaing sound when player takes finger to menu items
+		new Thread(new Runnable() {
+			public void run() {
+				try{
+					MediaPlayer mPlayer2 = MediaPlayer.create(gameHomeActivity, R.raw.redgreen_butn_blip);
+					mPlayer2.start();
+					while(mPlayer2.isPlaying()){
+						android.os.SystemClock.sleep(100);
+					}
+				}catch(Exception e){
+					Log.d(TAG,"ERROR PLAYING");
+					e.printStackTrace();
+				}
+			}}).start();				
+		//== End of playing sound
+	}
+	
+	private void playSkullClickSound(){
+		new Thread(new Runnable() {
+			public void run() {
+				try{
+					MediaPlayer mPlayer2 = MediaPlayer.create(gameHomeActivity, R.raw.skull_butn);
+					mPlayer2.start();
+					while(mPlayer2.isPlaying()){
+						android.os.SystemClock.sleep(100);
+					}
+				}catch(Exception e){
+					Log.d(TAG,"ERROR PLAYING");
+					e.printStackTrace();
+				}
+			}}).start();						
+	}
+	
+	private void playButtonSelectedSound(){
+		new Thread(new Runnable() {
+			public void run() {
+				try{
+					MediaPlayer mPlayer2 = MediaPlayer.create(gameHomeActivity, R.raw.next_back);
+					mPlayer2.start();
+					while(mPlayer2.isPlaying()){
+						android.os.SystemClock.sleep(100);
+					}
+				}catch(Exception e){
+					Log.d(TAG,"ERROR PLAYING");
+					e.printStackTrace();
+				}
+			}}).start();				
+	}
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
 		if (me.getAction() == MotionEvent.ACTION_DOWN) {
 			if (cartDist(501, 399, (int)me.getX(), (int)me.getY())<90){
 				showMenuButtons = true;
+				playSkullClickSound();
 			}
 			selectedKey = 0;
 		}
@@ -282,6 +334,7 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 				mSurface_drag.setActive(true);
 				mSurface_drag.onTouchEvent(me);
 			}
+			int oldSelectedKey = selectedKey;
 			if (cartDist(501, 399, (int)me.getX(), (int)me.getY())>70){
 				angle = getAngle(501, 399, (int)me.getX(), (int)me.getY());
 				if ((angle<-1)&&(angle>-60))
@@ -296,6 +349,9 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 					selectedKey = MARKET;
 				else
 					selectedKey = 0;
+				if ((selectedKey>0)&&(oldSelectedKey!=selectedKey)){
+					playSelectMenuItem();
+				}
 			}
 			else
 				selectedKey = 0;
@@ -308,6 +364,7 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 				switch (selectedKey) {
 			
 				case EXIT:
+					playButtonSelectedSound();
 					// Go Back to HOME Screen
 					Log.d(TAG, "Back to Home Screen");
 					//Save the state in a file
@@ -324,21 +381,25 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 					break;
 					
 				case FOOD:
+					playButtonSelectedSound();
 					populateItems.putExtra("type", 2);
 					gameHomeActivity.startActivityForResult(populateItems, 972);
 					break;
 					
 				case ANIMAL:
+					playButtonSelectedSound();
 					populateItems.putExtra("type", 0);
 		    		gameHomeActivity.startActivity(populateItems);
 					break;
 					
 				case SLAVE:
+					playButtonSelectedSound();
 					populateItems.putExtra("type", 1);
 		    		gameHomeActivity.startActivity(populateItems);
 					break;
 					
 				case MARKET:
+					playButtonSelectedSound();
 					Intent market = new Intent(gameHomeActivity,MarketHome.class);
 					gameHomeActivity.startActivityForResult(market, 233);
 					break;
