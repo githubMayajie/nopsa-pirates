@@ -44,7 +44,7 @@ public class GameHome extends Activity{
 		new Thread(new Runnable() {
 			public void run() {
 				try{
-					mPlayer = MediaPlayer.create(GameHome.this, R.raw.sailing_sound);
+					mPlayer = MediaPlayer.create(GameHome.this, R.raw.buy_sell_trade_anybg);
 					mPlayer.setLooping(true);
 					mPlayer.start();
 					while(mPlayer.isPlaying()){

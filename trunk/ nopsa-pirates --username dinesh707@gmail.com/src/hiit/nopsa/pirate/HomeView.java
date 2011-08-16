@@ -37,6 +37,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 	private final String TAG = "NOPSA-P";
 	private Bitmap home_wall, beam;
 	private Activity mainActivity;
+	private MainActivity mActivity;
 	private Intent gameHome;
 	private ViewControllerThread thread;
 	private boolean redButtonPressed = false;
@@ -51,6 +52,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 	public HomeView(Context context, Activity activity) {
 		super(context);
 		mainActivity = activity;
+		mActivity = (MainActivity) activity;
 		getHolder().addCallback(this);
         thread = new ViewControllerThread(getHolder(), this);
         setFocusable(true);
@@ -117,6 +119,22 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		glow_red = BitmapFactory.decodeResource(getResources(), R.drawable.glow_red);
 		ship = BitmapFactory.decodeResource(getResources(), R.drawable.ship_look);
 		button = BitmapFactory.decodeResource(getResources(), R.drawable.center_button);
+		//==Start Plaing sound for door closing
+		new Thread(new Runnable() {
+			public void run() {
+				try{
+					mActivity.mPlayer = MediaPlayer.create(mainActivity, R.raw.door_close_sample);
+					//mActivity.mPlayer.setLooping(true);
+					mActivity.mPlayer.start();
+					while(mActivity.mPlayer.isPlaying()){
+						android.os.SystemClock.sleep(100);
+					}
+				}catch(Exception e){
+					Log.d(TAG,"ERROR PLAYING");
+					e.printStackTrace();
+				}
+			}}).start();				
+		//== End of playing sound
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -142,6 +160,25 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 	     return bMapRotate;
 	}
 	
+	private void playSoundsOnBar(){
+		/*
+		//==Start Plaing sound when player takes finger to menu items
+		new Thread(new Runnable() {
+			public void run() {
+				try{
+					MediaPlayer mPlayer2 = MediaPlayer.create(mainActivity, R.raw.screen1_barelements_menuover);
+					mPlayer2.start();
+					while(mPlayer2.isPlaying()){
+						android.os.SystemClock.sleep(100);
+					}
+				}catch(Exception e){
+					Log.d(TAG,"ERROR PLAYING");
+					e.printStackTrace();
+				}
+			}}).start();				
+		//== End of playing sound
+		*/
+	}
 		
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
@@ -191,6 +228,22 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		}
 		
 		if ((door_x>120)&&(me.getAction()==MotionEvent.ACTION_UP)){
+			//==Start Plaing sound for door opening
+			new Thread(new Runnable() {
+				public void run() {
+					try{
+						mActivity.mPlayer = MediaPlayer.create(mainActivity, R.raw.door_opens_ample);
+						//mActivity.mPlayer.setLooping(true);
+						mActivity.mPlayer.start();
+						while(mActivity.mPlayer.isPlaying()){
+							android.os.SystemClock.sleep(100);
+						}
+					}catch(Exception e){
+						Log.d(TAG,"ERROR PLAYING");
+						e.printStackTrace();
+					}
+				}}).start();				
+			//== End of playing sound			
 			while (door_x<512){
 				door_x = door_x+1;
 				android.os.SystemClock.sleep(5);
@@ -204,9 +257,39 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		if (me.getAction() == MotionEvent.ACTION_DOWN){
 			if (cartDist(277, 300, (int) me.getX(), (int) me.getY()) < 50){
 				redButtonPressed = true;
+				//==Start Plaing sound red button click
+				new Thread(new Runnable() {
+					public void run() {
+						try{
+							MediaPlayer mPlayer2 = MediaPlayer.create(mainActivity, R.raw.redgreen_butn_blip);
+							mPlayer2.start();
+							while(mPlayer2.isPlaying()){
+								android.os.SystemClock.sleep(100);
+							}
+						}catch(Exception e){
+							Log.d(TAG,"ERROR PLAYING");
+							e.printStackTrace();
+						}
+					}}).start();				
+				//== End of playing sound
 			}
 			if (cartDist(744, 300, (int) me.getX(), (int) me.getY()) < 50){
 				greenButtonPressed = true;
+				//==Start Plaing sound red button click
+				new Thread(new Runnable() {
+					public void run() {
+						try{
+							MediaPlayer mPlayer2 = MediaPlayer.create(mainActivity, R.raw.redgreen_butn_blip);
+							mPlayer2.start();
+							while(mPlayer2.isPlaying()){
+								android.os.SystemClock.sleep(100);
+							}
+						}catch(Exception e){
+							Log.d(TAG,"ERROR PLAYING");
+							e.printStackTrace();
+						}
+					}}).start();				
+				//== End of playing sound
 			}
 		}
 		
@@ -231,6 +314,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			}
 			if ((greenButtonPressed)&&(cartDist(830, 300, (int) me.getX(), (int)me.getY())<50)){
 				// 5. menu bar button finger..as your finger goes over info / about etc..
+				playSoundsOnBar();
 				Log.d(TAG,"Haptic Feeling Type 5");
 				mSurface_5.setActive(true);
 			    mSurface_5.onTouchEvent(me);	
@@ -238,6 +322,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			}
 			if ((greenButtonPressed)&&(cartDist(940, 300, (int) me.getX(), (int)me.getY())<50)){
 				// 5. menu bar button finger..as your finger goes over info / about etc..
+				playSoundsOnBar();
 				Log.d(TAG,"Haptic Feeling Type 5");
 				mSurface_5.setActive(true);
 			    mSurface_5.onTouchEvent(me);	
@@ -245,6 +330,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			}
 			if ((redButtonPressed)&&(cartDist(80, 300, (int) me.getX(), (int)me.getY())<50)){
 				// 5. menu bar button finger..as your finger goes over info / about etc..
+				playSoundsOnBar();
 				Log.d(TAG,"Haptic Feeling Type 5");
 				mSurface_5.setActive(true);
 			    mSurface_5.onTouchEvent(me);
@@ -252,6 +338,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			}
 			if ((redButtonPressed)&&(cartDist(190, 300, (int) me.getX(), (int)me.getY())<50)){
 				// 5. menu bar button finger..as your finger goes over info / about etc..
+				playSoundsOnBar();
 				Log.d(TAG,"Haptic Feeling Type 5");
 				mSurface_5.setActive(true);
 			    mSurface_5.onTouchEvent(me);
@@ -271,6 +358,22 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 				Log.d(TAG,"============ START PRESSED !! ==================");
 				green_b = false;
 				greenButtonPressed = false;
+				//==Start Plaing sound for door opening
+				new Thread(new Runnable() {
+					public void run() {
+						try{
+							mActivity.mPlayer = MediaPlayer.create(mainActivity, R.raw.door_opens_ample);
+							//mActivity.mPlayer.setLooping(true);
+							mActivity.mPlayer.start();
+							while(mActivity.mPlayer.isPlaying()){
+								android.os.SystemClock.sleep(100);
+							}
+						}catch(Exception e){
+							Log.d(TAG,"ERROR PLAYING");
+							e.printStackTrace();
+						}
+					}}).start();				
+				//== End of playing sound
 				while (door_x<512){
 					door_x = door_x+1;
 					android.os.SystemClock.sleep(5);

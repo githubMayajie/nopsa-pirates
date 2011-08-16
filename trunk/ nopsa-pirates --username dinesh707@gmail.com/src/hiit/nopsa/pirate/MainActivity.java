@@ -38,7 +38,7 @@ public class MainActivity extends Activity {
     
 	private HomeView homeView;
 	private final String TAG = "NOPSA-P";
-	private MediaPlayer mPlayer = null;
+	public MediaPlayer mPlayer = null;
 	private String name_enterd="";
 	private MainActivity mainActivity;
 	
@@ -111,7 +111,7 @@ public class MainActivity extends Activity {
 		new Thread(new Runnable() {
 			public void run() {
 				try{
-					mPlayer = MediaPlayer.create(MainActivity.this, R.raw.carribian_theam);
+					mPlayer = MediaPlayer.create(MainActivity.this, R.raw.screen1_intro);
 					mPlayer.setLooping(true);
 					mPlayer.start();
 					while(mPlayer.isPlaying()){
