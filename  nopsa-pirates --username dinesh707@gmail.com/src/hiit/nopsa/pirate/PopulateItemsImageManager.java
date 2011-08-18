@@ -118,6 +118,7 @@ public class PopulateItemsImageManager {
 	}
 	
 	public Bitmap getImagetoMarkBonderies(int stPoint){
+		System.gc();
 		try{
 		if (lastStartPoint!=stPoint){
 			for (int i=0;i<stPoint-lastStartPoint;i++){
