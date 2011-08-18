@@ -1,12 +1,8 @@
 package hiit.nopsa.pirate;
 
-import java.util.ArrayList;
 import java.util.Date;
-
-import hiit.nopsa.pirate.GameHomeView.ViewControllerThread;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -20,6 +16,11 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Toast;
 
+/**
+ * IMPORTANT : "MarketHome.java" and "MarketHomeView.java" needs to be re modeled and simplified.
+ * 
+ * @author Dinesh Wijekoon
+ */
 public class MarketHomeView extends SurfaceView implements SurfaceHolder.Callback{
 	
 	private final String TAG = "NOPSA-P";
@@ -322,7 +323,7 @@ public class MarketHomeView extends SurfaceView implements SurfaceHolder.Callbac
 			if (dragCoin){
 				Log.d(TAG,"Coin Droped");
 				if((40<me.getX())&&(me.getX()<210)&&(90<me.getY())&&(me.getY()<140)){
-					//TODO Upgrade Ship
+					//Upgrade Ship
 					if ((gameStatus.getNum_crew()>gameStatus.getShip_class()*3)&&(gameStatus.getCoins()>666*gameStatus.getShip_class())){
 						// You need 3xclass crew and 666xclass coins for an upgrade
 						gameStatus.setCoins(gameStatus.getCoins()-(666*gameStatus.getShip_class()));
@@ -334,7 +335,7 @@ public class MarketHomeView extends SurfaceView implements SurfaceHolder.Callbac
 					}
 				}
 				if((40<me.getX())&&(me.getX()<210)&&(170<me.getY())&&(me.getY()<220)){
-					//TODO Buy Next Crew
+					//Buy Next Crew
 					if (gameStatus.getCoins()>((gameStatus.getNum_crew()+1)*230)){
 						gameStatus.setCoins(gameStatus.getCoins()-((gameStatus.getNum_crew()+1)*230));
 						gameStatus.setNum_crew(gameStatus.getNum_crew()+1);
@@ -415,7 +416,6 @@ public class MarketHomeView extends SurfaceView implements SurfaceHolder.Callbac
 		            _thread.join();
 		            retry = false;
 		        } catch (InterruptedException e) {
-		            // we will try it again and again...
 		        }
 		    }	
 	}
@@ -449,9 +449,6 @@ public class MarketHomeView extends SurfaceView implements SurfaceHolder.Callbac
 	    	                _marketHomeView.onDraw(c);
 	    	            }
 	    	        } finally {
-	    	            // do this in a finally so that if an exception is thrown
-	    	            // during the above, we don't leave the Surface in an
-	    	            // inconsistent state
 	    	            if (c != null) {
 	    	                _surfaceHolder.unlockCanvasAndPost(c);
 	    	            }

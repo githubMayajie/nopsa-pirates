@@ -1,15 +1,8 @@
 package hiit.nopsa.pirate;
 
-import java.io.IOException;
-import java.util.Date;
 
 import com.senseg.effect.EffectManager;
 import com.senseg.effect.FeelableSurface;
-import com.senseg.effect.effects.DragAndDropCollection;
-
-//import com.senseg.effect.EffectManager;
-//import com.senseg.effect.FeelableSurface;
-//import com.senseg.effect.effects.DragAndDropCollection;
 
 import android.app.Activity;
 import android.content.Context;
@@ -21,30 +14,30 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.MotionEvent.PointerCoords;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.MediaController.MediaPlayerControl;
-import android.widget.SlidingDrawer;
 import android.widget.Toast;
 
+/**
+ * 
+ * 
+ * @author Dinesh Wijekoon
+ */
 public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 	
 	private final String TAG = "NOPSA-P";
-	private Bitmap home_wall, beam;
 	private Activity mainActivity;
 	private MainActivity mActivity;
 	private Intent gameHome;
 	private ViewControllerThread thread;
 	private boolean redButtonPressed = false;
 	private boolean greenButtonPressed = false;
-	private boolean doorOpening = false;
 	private int door_x = 512;
-	private Bitmap day_sea = null, door_left = null, door_right = null, glow_red=null, glow_green=null, ship, button;
+	private Bitmap day_sea = null, door_left = null, door_right = null, glow_red=null, glow_green=null, ship, button, menu, beam;
 	private EffectManager manager;
 	private FeelableSurface mSurface_1,mSurface_2,mSurface_3,mSurface_4,mSurface_5;
 	private boolean red_a=false,red_b=false,green_a=false,green_b=false;
@@ -62,7 +55,6 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 	protected void onDraw(Canvas canvas){
 		if (day_sea==null)
 			loadBitmaps();
-		//System.gc();
 		//==========Draw the background
 		Paint background = new Paint();
 		background.setColor(Color.WHITE);
@@ -108,6 +100,9 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			canvas.drawBitmap(glow_green, 730, 200, beam_paint);
 		if (green_b)
 			canvas.drawBitmap(glow_green, 840, 200, beam_paint);
+		
+		//=========Draw Settings Icon
+		canvas.drawBitmap(menu, 10, 550,sea_paint);
 	}
 	
 	private void loadBitmaps(){
@@ -119,22 +114,8 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		glow_red = BitmapFactory.decodeResource(getResources(), R.drawable.glow_red);
 		ship = BitmapFactory.decodeResource(getResources(), R.drawable.ship_look);
 		button = BitmapFactory.decodeResource(getResources(), R.drawable.center_button);
-		//==Start Plaing sound for door closing
-		new Thread(new Runnable() {
-			public void run() {
-				try{
-					mActivity.mPlayer = MediaPlayer.create(mainActivity, R.raw.door_close_sample);
-					//mActivity.mPlayer.setLooping(true);
-					mActivity.mPlayer.start();
-					while(mActivity.mPlayer.isPlaying()){
-						android.os.SystemClock.sleep(100);
-					}
-				}catch(Exception e){
-					Log.d(TAG,"ERROR PLAYING");
-					e.printStackTrace();
-				}
-			}}).start();				
-		//== End of playing sound
+		menu = BitmapFactory.decodeResource(getResources(), R.drawable.menu_icon);
+		playDoorCloseSound();
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -153,49 +134,123 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		mSurface_5 = new FeelableSurface(this.getContext(), manager, R.xml.e_menu_buttons_finger);
 	}
 	
+	/*
 	private Bitmap rotateImage(Bitmap inputImg, int angle){
 	     Matrix mat = new Matrix();
 	     mat.postRotate(angle);
 	     Bitmap bMapRotate = Bitmap.createBitmap(inputImg, 0, 0, inputImg.getWidth(), inputImg.getHeight(), mat, true);
 	     return bMapRotate;
-	}
+	}*/
 	
 	private void playSoundsOnBar(){
 		/*
-		//==Start Plaing sound when player takes finger to menu items
-		new Thread(new Runnable() {
-			public void run() {
-				try{
-					MediaPlayer mPlayer2 = MediaPlayer.create(mainActivity, R.raw.screen1_barelements_menuover);
-					mPlayer2.start();
-					while(mPlayer2.isPlaying()){
-						android.os.SystemClock.sleep(100);
+		if (GameStatus.getGameStatusObject().isSounds()){
+			//==Start Plaing sound when player takes finger to menu items
+			new Thread(new Runnable() {
+				public void run() {
+					try{
+						MediaPlayer mPlayer2 = MediaPlayer.create(mainActivity, R.raw.screen1_barelements_menuover);
+						mPlayer2.start();
+						while(mPlayer2.isPlaying()){
+							android.os.SystemClock.sleep(100);
+						}
+					}catch(Exception e){
+						Log.d(TAG,"ERROR PLAYING");
+						e.printStackTrace();
 					}
-				}catch(Exception e){
-					Log.d(TAG,"ERROR PLAYING");
-					e.printStackTrace();
-				}
-			}}).start();				
-		//== End of playing sound
+				}}).start();				
+			//== End of playing sound
+		}
 		*/
 	}
-		
+	
+	private void playDoorOpenSound(){
+		if (GameStatus.getGameStatusObject().isSounds()){
+			//==Start Plaing sound for door opening
+			new Thread(new Runnable() {
+				public void run() {
+					try{
+						MediaPlayer mPlayer =  MediaPlayer.create(mainActivity, R.raw.door_opens_ample);
+						//mActivity.mPlayer.setLooping(true);
+						mPlayer.start();
+						while(mPlayer.isPlaying()){
+							android.os.SystemClock.sleep(100);
+						}
+					}catch(Exception e){
+						Log.d(TAG,"ERROR PLAYING");
+						e.printStackTrace();
+					}
+				}}).start();				
+			//== End of playing sound			
+		}
+	}
+	
+	private void playButtonClickSound(){
+		if (GameStatus.getGameStatusObject().isSounds()){
+			//==Start Plaing sound red button click
+			new Thread(new Runnable() {
+				public void run() {
+					try{
+						MediaPlayer mPlayer2 = MediaPlayer.create(mainActivity, R.raw.redgreen_butn_blip);
+						mPlayer2.start();
+						while(mPlayer2.isPlaying()){
+							android.os.SystemClock.sleep(100);
+						}
+					}catch(Exception e){
+						Log.d(TAG,"ERROR PLAYING");
+						e.printStackTrace();
+					}
+				}}).start();				
+			//== End of playing sound
+		}
+	}
+	
+	private void playDoorCloseSound(){
+		if (GameStatus.getGameStatusObject().isSounds()){
+			//==Start Plaing sound for door opening
+			new Thread(new Runnable() {
+				public void run() {
+					try{
+						MediaPlayer mPlayer = MediaPlayer.create(mainActivity, R.raw.door_close_sample);
+						//mActivity.mPlayer.setLooping(true);
+						mPlayer.start();
+						while(mPlayer.isPlaying()){
+							android.os.SystemClock.sleep(100);
+						}
+					}catch(Exception e){
+						Log.d(TAG,"ERROR PLAYING");
+						e.printStackTrace();
+					}
+				}}).start();				
+			//== End of playing sound
+		}
+	}
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
+		if ((me.getAction()==MotionEvent.ACTION_DOWN)&((me.getX()<60)&&(540<me.getY()))){
+			//Open Options menu
+			mainActivity.openOptionsMenu();
+		}
+		
 		if((500<(me.getX())&&(me.getX()<524))){
 			//3. door line..this is the line between the 2 doors when its shut..a feeling as you pass finger over it
-			Log.d(TAG,"Haptic Feeling Type 3");
-			mSurface_3.setActive(true);
-		    mSurface_3.onTouchEvent(me);
+			if (GameStatus.getGameStatusObject().isHaptics()){
+				Log.d(TAG,"Haptic Feeling Type 3");
+				mSurface_3.setActive(true);
+			    mSurface_3.onTouchEvent(me);
+			}
 		}
 					
 		if (redButtonPressed||greenButtonPressed)
 			if((me.getY()<330)&&(270<me.getY())){
 				try{
 					//4. menu bar slide…as finger slides over the menu bar
-					Log.d(TAG,"Haptic Feeling Type 4");
-					mSurface_4.setActive(true);
-				    mSurface_4.onTouchEvent(me);
+					if (GameStatus.getGameStatusObject().isHaptics()){
+						Log.d(TAG,"Haptic Feeling Type 4");
+						mSurface_4.setActive(true);
+					    mSurface_4.onTouchEvent(me);
+					}
 				}catch(NullPointerException ne){}
 			}
 		if (me.getPointerCount()>1){
@@ -207,43 +262,17 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 				door_x = cartDist((int)pc1.x, (int)pc1.y, (int)pc2.x, (int)pc2.y)/2;
 				if (door_x<125){
 					//2. door open stretch..as you opn the door, the stretchy feeling
-					Log.d(TAG,"Haptic Feeling Type 2");
-					mSurface_2.setActive(true);
-				    mSurface_2.onTouchEvent(me);
+					if (GameStatus.getGameStatusObject().isHaptics()){
+						Log.d(TAG,"Haptic Feeling Type 2");
+						mSurface_2.setActive(true);
+					    mSurface_2.onTouchEvent(me);
+					}
 				}
-				//===========HAPTICS=======
-				//manager = (EffectManager) mainActivity.getSystemService(mainActivity.EFFECT_SERVICE);
-				//DragAndDropCollection mDrag = DragAndDropCollection.load(mainActivity, manager);
-				//mDrag.tick.play();	
-				//==========END OF HAPTICS
 			}
-		}
-		else{
-			// Test Haptics Load from XML
-			//manager = (EffectManager) mainActivity.getSystemService(mainActivity.EFFECT_SERVICE);
-			//FeelableSurface mSurface = new FeelableSurface(this.getContext(), manager, R.xml.unlock_surface);
-			//mSurface.setActive(true);
-		    //mSurface.onTouchEvent(me);
-			//========== End of test haptics
 		}
 		
 		if ((door_x>120)&&(me.getAction()==MotionEvent.ACTION_UP)){
-			//==Start Plaing sound for door opening
-			new Thread(new Runnable() {
-				public void run() {
-					try{
-						mActivity.mPlayer = MediaPlayer.create(mainActivity, R.raw.door_opens_ample);
-						//mActivity.mPlayer.setLooping(true);
-						mActivity.mPlayer.start();
-						while(mActivity.mPlayer.isPlaying()){
-							android.os.SystemClock.sleep(100);
-						}
-					}catch(Exception e){
-						Log.d(TAG,"ERROR PLAYING");
-						e.printStackTrace();
-					}
-				}}).start();				
-			//== End of playing sound			
+			playDoorOpenSound();		
 			while (door_x<512){
 				door_x = door_x+1;
 				android.os.SystemClock.sleep(5);
@@ -257,39 +286,11 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 		if (me.getAction() == MotionEvent.ACTION_DOWN){
 			if (cartDist(277, 300, (int) me.getX(), (int) me.getY()) < 50){
 				redButtonPressed = true;
-				//==Start Plaing sound red button click
-				new Thread(new Runnable() {
-					public void run() {
-						try{
-							MediaPlayer mPlayer2 = MediaPlayer.create(mainActivity, R.raw.redgreen_butn_blip);
-							mPlayer2.start();
-							while(mPlayer2.isPlaying()){
-								android.os.SystemClock.sleep(100);
-							}
-						}catch(Exception e){
-							Log.d(TAG,"ERROR PLAYING");
-							e.printStackTrace();
-						}
-					}}).start();				
-				//== End of playing sound
+				playButtonClickSound();
 			}
 			if (cartDist(744, 300, (int) me.getX(), (int) me.getY()) < 50){
 				greenButtonPressed = true;
-				//==Start Plaing sound red button click
-				new Thread(new Runnable() {
-					public void run() {
-						try{
-							MediaPlayer mPlayer2 = MediaPlayer.create(mainActivity, R.raw.redgreen_butn_blip);
-							mPlayer2.start();
-							while(mPlayer2.isPlaying()){
-								android.os.SystemClock.sleep(100);
-							}
-						}catch(Exception e){
-							Log.d(TAG,"ERROR PLAYING");
-							e.printStackTrace();
-						}
-					}}).start();				
-				//== End of playing sound
+				playButtonClickSound();
 			}
 		}
 		
@@ -301,48 +302,60 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			if (cartDist(277, 300, (int) me.getX(), (int) me.getY()) < 50){
 				// Reached Red Button Area
 				//1. circular menu, just when finger moves over those red and green buttons.
-				Log.d(TAG,"Haptic Feeling Type 1");
-				mSurface_1.setActive(true);
-			    mSurface_1.onTouchEvent(me);
+				if (GameStatus.getGameStatusObject().isHaptics()){
+					Log.d(TAG,"Haptic Feeling Type 1");
+					mSurface_1.setActive(true);
+				    mSurface_1.onTouchEvent(me);
+				}
 			}
 			if (cartDist(744, 300, (int) me.getX(), (int) me.getY()) < 50){
 				// Reached Green Button Area
 				//1. circular menu, just when finger moves over those red and green buttons.
-				Log.d(TAG,"Haptic Feeling Type 1");
-				mSurface_1.setActive(true);
-			    mSurface_1.onTouchEvent(me);				
+				if (GameStatus.getGameStatusObject().isHaptics()){
+					Log.d(TAG,"Haptic Feeling Type 1");
+					mSurface_1.setActive(true);
+					mSurface_1.onTouchEvent(me);				
+				}
 			}
 			if ((greenButtonPressed)&&(cartDist(830, 300, (int) me.getX(), (int)me.getY())<50)){
 				// 5. menu bar button finger..as your finger goes over info / about etc..
 				playSoundsOnBar();
-				Log.d(TAG,"Haptic Feeling Type 5");
-				mSurface_5.setActive(true);
-			    mSurface_5.onTouchEvent(me);	
+				if (GameStatus.getGameStatusObject().isHaptics()){
+					Log.d(TAG,"Haptic Feeling Type 5");
+					mSurface_5.setActive(true);
+				    mSurface_5.onTouchEvent(me);	
+				}
 			    green_a = true;
 			}
 			if ((greenButtonPressed)&&(cartDist(940, 300, (int) me.getX(), (int)me.getY())<50)){
 				// 5. menu bar button finger..as your finger goes over info / about etc..
 				playSoundsOnBar();
-				Log.d(TAG,"Haptic Feeling Type 5");
-				mSurface_5.setActive(true);
-			    mSurface_5.onTouchEvent(me);	
+				if (GameStatus.getGameStatusObject().isHaptics()){
+					Log.d(TAG,"Haptic Feeling Type 5");
+					mSurface_5.setActive(true);
+				    mSurface_5.onTouchEvent(me);	
+				}
 			    green_b = true;
 			}
 			if ((redButtonPressed)&&(cartDist(80, 300, (int) me.getX(), (int)me.getY())<50)){
 				// 5. menu bar button finger..as your finger goes over info / about etc..
 				playSoundsOnBar();
-				Log.d(TAG,"Haptic Feeling Type 5");
-				mSurface_5.setActive(true);
-			    mSurface_5.onTouchEvent(me);
-			    red_a = true;
+				if (GameStatus.getGameStatusObject().isHaptics()){
+					Log.d(TAG,"Haptic Feeling Type 5");
+					mSurface_5.setActive(true);
+				    mSurface_5.onTouchEvent(me);
+				}
+				red_a = true;
 			}
 			if ((redButtonPressed)&&(cartDist(190, 300, (int) me.getX(), (int)me.getY())<50)){
 				// 5. menu bar button finger..as your finger goes over info / about etc..
 				playSoundsOnBar();
-				Log.d(TAG,"Haptic Feeling Type 5");
-				mSurface_5.setActive(true);
-			    mSurface_5.onTouchEvent(me);
-			    red_b=true;
+				if (GameStatus.getGameStatusObject().isHaptics()){
+					Log.d(TAG,"Haptic Feeling Type 5");
+					mSurface_5.setActive(true);
+				    mSurface_5.onTouchEvent(me);
+				}
+				red_b=true;
 			}
 		}
 		
@@ -358,22 +371,7 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 				Log.d(TAG,"============ START PRESSED !! ==================");
 				green_b = false;
 				greenButtonPressed = false;
-				//==Start Plaing sound for door opening
-				new Thread(new Runnable() {
-					public void run() {
-						try{
-							mActivity.mPlayer = MediaPlayer.create(mainActivity, R.raw.door_opens_ample);
-							//mActivity.mPlayer.setLooping(true);
-							mActivity.mPlayer.start();
-							while(mActivity.mPlayer.isPlaying()){
-								android.os.SystemClock.sleep(100);
-							}
-						}catch(Exception e){
-							Log.d(TAG,"ERROR PLAYING");
-							e.printStackTrace();
-						}
-					}}).start();				
-				//== End of playing sound
+				playDoorOpenSound();
 				while (door_x<512){
 					door_x = door_x+1;
 					android.os.SystemClock.sleep(5);

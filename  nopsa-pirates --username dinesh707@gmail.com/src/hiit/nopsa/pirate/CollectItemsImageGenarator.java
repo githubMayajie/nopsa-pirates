@@ -84,7 +84,7 @@ public class CollectItemsImageGenarator {
 	
 	private void loadImagesToArray(){	
 		if (oldLoaction<0){
-			// Code Runs for FIrst time
+			// Code Runs for First time image loading
 			oldLoaction = 0;
 			new Thread(new Runnable() {
 				public void run() {
@@ -135,9 +135,9 @@ public class CollectItemsImageGenarator {
 				}
 			}
 			).start();
-		}// End of IF
+		}
 		else{
-			// code runs when it loads other times
+			// Code Runs when user request more photos
 				new Thread(new Runnable() {
 					public void run() {
 						Bitmap icon_bitmap = null;
@@ -188,7 +188,6 @@ public class CollectItemsImageGenarator {
 					}
 				}
 				).start();
-				//==============================================
 		}
 	}
 }

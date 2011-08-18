@@ -5,20 +5,20 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Date;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.util.Log;
 import android.view.View;
 
+/**
+ * 
+ * @author Dinesh Wijekoon
+ */
 public class PopulateItemsImageManager {
 	
 	private final String TAG = "NOPSA-P";
@@ -27,7 +27,6 @@ public class PopulateItemsImageManager {
 	private ArrayList<String> fileIdOnBuffer = null;
 	private ArrayList<Float> scaledValues = null;
 	private Collectable collectable;
-	private View parentView;
 	private Bitmap photo_bitmap;
 	private int lastStartPoint = 0;
 	private int lastendPoint = 1;
@@ -37,7 +36,6 @@ public class PopulateItemsImageManager {
 	
 	public PopulateItemsImageManager(Collectable ctb, View pv){
 		collectable = ctb;
-		parentView = pv;
 		imgOnBuffer = new ArrayList<Bitmap>();
 		urlOnBuffer = new ArrayList<URL>();
 		fileIdOnBuffer = new ArrayList<String>();
@@ -120,7 +118,6 @@ public class PopulateItemsImageManager {
 	}
 	
 	public Bitmap getImagetoMarkBonderies(int stPoint){
-		//Log.d(TAG,">>>>>>>>>>>>>>> LastStart "+lastStartPoint+" LastEndPoint"+lastendPoint+" stPoint"+stPoint);
 		try{
 		if (lastStartPoint!=stPoint){
 			for (int i=0;i<stPoint-lastStartPoint;i++){
