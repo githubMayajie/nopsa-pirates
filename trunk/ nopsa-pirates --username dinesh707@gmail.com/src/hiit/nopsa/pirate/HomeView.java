@@ -389,6 +389,8 @@ public class HomeView extends SurfaceView implements SurfaceHolder.Callback{
 			}
 			if ((redButtonPressed)&&(cartDist(190, 300, (int) me.getX(), (int)me.getY())<50)){
 				Log.d(TAG,"============ About PRESSED !! ==================");
+				About about = new About();
+				about.popAboutDialog(mainActivity);
 			}
 			red_a = false;
 			red_b = false;

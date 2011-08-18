@@ -183,9 +183,10 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 	private void infoDialog(){
 		InstructionDialog id = new InstructionDialog();
 		String title = "Arrr !";
-		String text = "Need More Food? Need to make your slaves Intelligent? OR You want to make animals worth?.." +
-				"Dont Wait.. start marking them .. if you cant find any of them throw it to green Ghost. P.S: If you " +
-				"cant find any items to mark, wait till you get into an Island. There you can capture them ..";
+		String text = "Need More Food? Want to make your slaves Intelligent? Want to make animals worthy?.. " +
+				"Dont Wait.. start 'marking the boundaries' of the item you select from the bottom.. If the picture " +
+				"doesn't have item described in the tag above drag and drop it to the bin.. P.S: If you " +
+				"can't find any items below, wait till you get into an Island. There you can capture them ..";
 		id.popInstructionsDialog(title, text, populateItemsActivity);
 	}
 		
@@ -266,9 +267,9 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 					if (cartDist(boundary.get(0)[0], boundary.get(0)[1], a[0], a[1])<25){
 					// When boundary reachers back to the red starting dot
 						animatePlusOne();
-						Vibrator v = (Vibrator) populateItemsActivity.getSystemService(Context.VIBRATOR_SERVICE);
-						long[] pattern = {100,2};
-						v.vibrate(pattern, 4);
+						//Vibrator v = (Vibrator) populateItemsActivity.getSystemService(Context.VIBRATOR_SERVICE);
+						//long[] pattern = {100,2};
+						//v.vibrate(pattern, 4);
 						
 						// When ever player reachers to close the boundary as a circle system auto uploads data and present the
 						// next image

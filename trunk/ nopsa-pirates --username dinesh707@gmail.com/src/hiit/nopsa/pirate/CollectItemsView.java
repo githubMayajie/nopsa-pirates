@@ -273,8 +273,8 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 	private void infoDialog(){
 		InstructionDialog id = new InstructionDialog();
 		String title = "Yo! Sailer..";
-		String text = "Drop the items you want in to the drak sea down. Later you can use them as food, " +
-				"you can train them an make them your crew, OR you can sell them at the harbor";
+		String text = "Pick any item you want from the ribbon on top and drop them to the dark sea below. Later you can use them as food, " +
+				"you can train them and make them your crew OR you can sell them at the harbor. To get more items drag the ribbon to right. ";
 		id.popInstructionsDialog(title, text, collectItemsActivity);
 	}
 

@@ -56,6 +56,7 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 		_thread = new ViewControllerThread(getHolder(), this);
 		setFocusable(true);
 		System.gc();
+		infoDialog();
 	}
 	
 	private void loadEffects(){
@@ -174,6 +175,13 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 				canvas.drawRect( tags.get(i).x-10, tags.get(i).y-10,tags.get(i).x,tags.get(i).y+15, sq);
 			}
 		}
+	}
+	
+	private void infoDialog(){
+		InstructionDialog id = new InstructionDialog();
+		String title = "Yo! Sailer..";
+		String text = "Select the most suitable tag for this item. You can use the dots to check the tags clearly.  ";
+		id.popInstructionsDialog(title, text, keyboardHomeActivity);
 	}
 	
 	@Override

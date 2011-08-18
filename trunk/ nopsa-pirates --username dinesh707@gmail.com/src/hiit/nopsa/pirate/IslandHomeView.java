@@ -373,8 +373,9 @@ public class IslandHomeView extends SurfaceView implements SurfaceHolder.Callbac
 	private void infoDialog(){
 		InstructionDialog id = new InstructionDialog();
 		String title = "Avast! You found a deserted island...";
-		String text = "Now its time to catch some animals, collect some food and capture slaves. Remember that" +
-				" when you have more animals and more slaves they need more food.. ";
+		String text = "Now it's time to catch animals, collect food and capture slaves. Remember " +
+				" if you have more animals and slaves they need more food. So you may run out of food faster " +
+				" with more living beings.. ";
 		id.popInstructionsDialog(title, text, islandHomeActivity);
 	}
 	
