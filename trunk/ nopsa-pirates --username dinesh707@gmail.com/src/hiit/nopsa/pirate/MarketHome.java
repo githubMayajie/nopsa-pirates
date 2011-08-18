@@ -7,6 +7,11 @@ import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 
+/**
+ * IMPORTANT : "MarketHome.java" and "MarketHomeView.java" needs to be re modeled and simplified.
+ * 
+ * @author Dinesh Wijekoon
+ */
 public class MarketHome extends Activity{
 	
 	private MarketHomeView marketHomeView;
@@ -15,36 +20,33 @@ public class MarketHome extends Activity{
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState); 
-	    //Remove title bar
 	    this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-	    //Remove notification bar
 	    this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-	    //Loading GameData from Files
 	    marketHomeView = new MarketHomeView(this,this);
 	    setContentView(marketHomeView);
 	}
 	
-	
 	private void playSound(){
-		new Thread(new Runnable() {
-			public void run() {
-				try{
-					mPlayer = MediaPlayer.create(MarketHome.this, R.raw.traven);
-					mPlayer.setLooping(true);
-					mPlayer.start();
-					while(mPlayer.isPlaying()){
-						android.os.SystemClock.sleep(100);
+		if (GameStatus.getGameStatusObject().isSounds()){
+			new Thread(new Runnable() {
+				public void run() {
+					try{
+						mPlayer = MediaPlayer.create(MarketHome.this, R.raw.traven);
+						mPlayer.setLooping(true);
+						mPlayer.start();
+						while(mPlayer.isPlaying()){
+							android.os.SystemClock.sleep(100);
+						}
+					}catch(Exception e){
+						Log.d(TAG,"ERROR PLAYING");
+						e.printStackTrace();
 					}
-				}catch(Exception e){
-					Log.d(TAG,"ERROR PLAYING");
-					e.printStackTrace();
-				}
-			}}).start();
+				}}).start();
+		}
 	}
 	
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		playSound();
 		super.onResume();
 	}

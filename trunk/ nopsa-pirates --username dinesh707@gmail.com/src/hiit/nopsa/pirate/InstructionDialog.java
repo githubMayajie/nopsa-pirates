@@ -6,21 +6,21 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnTouchListener;
-import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
-
 import android.widget.TextView;
-import android.view.Window;
-import android.view.accessibility.AccessibilityEvent;
 
+
+/**
+ * Inflates a dialog in each screen of the game if "Text" option is ON. 
+ * It will tell player what is their task in every game page.
+ * 
+ * @author Dinesh Wijekoon
+ */
 public class InstructionDialog {
 	
 	private AlertDialog.Builder builder;
@@ -59,9 +59,6 @@ public class InstructionDialog {
 		ImageView image = (ImageView) layout.findViewById(R.id.image);
 		image.setImageResource(R.drawable.captain);
 
-		//alertDialog.dismiss();
-		//GameStatus.getGameStatusObject().setInstructions(isChecked);
-		
 		builder = new AlertDialog.Builder(mContext);
 		builder.setView(layout);
 		alertDialog = builder.create();

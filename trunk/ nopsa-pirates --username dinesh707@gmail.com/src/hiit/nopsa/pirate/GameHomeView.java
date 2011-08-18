@@ -24,6 +24,11 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+/**
+ * 
+ * 
+ * @author Dinesh Wijekoon
+ */
 public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 
 	private Bitmap sea1 = null;
@@ -265,53 +270,58 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 	}
 	
 	private void playSelectMenuItem(){
-		//==Start Plaing sound when player takes finger to menu items
-		new Thread(new Runnable() {
-			public void run() {
-				try{
-					MediaPlayer mPlayer2 = MediaPlayer.create(gameHomeActivity, R.raw.redgreen_butn_blip);
-					mPlayer2.start();
-					while(mPlayer2.isPlaying()){
-						android.os.SystemClock.sleep(100);
+	  //==Start Plaing sound when player takes finger to menu items
+		if (gameStatus.isSounds()){
+			new Thread(new Runnable() {
+				public void run() {
+					try{
+						MediaPlayer mPlayer2 = MediaPlayer.create(gameHomeActivity, R.raw.redgreen_butn_blip);
+						mPlayer2.start();
+						while(mPlayer2.isPlaying()){
+							android.os.SystemClock.sleep(100);
+						}
+					}catch(Exception e){
+						Log.d(TAG,"ERROR PLAYING");
+						e.printStackTrace();
 					}
-				}catch(Exception e){
-					Log.d(TAG,"ERROR PLAYING");
-					e.printStackTrace();
-				}
-			}}).start();				
-		//== End of playing sound
+				}}).start();				
+		}
 	}
 	
 	private void playSkullClickSound(){
-		new Thread(new Runnable() {
-			public void run() {
-				try{
-					MediaPlayer mPlayer2 = MediaPlayer.create(gameHomeActivity, R.raw.skull_butn);
-					mPlayer2.start();
-					while(mPlayer2.isPlaying()){
-						android.os.SystemClock.sleep(100);
+		if (gameStatus.isSounds()){
+			new Thread(new Runnable() {
+				public void run() {
+					try{
+						MediaPlayer mPlayer2 = MediaPlayer.create(gameHomeActivity, R.raw.skull_butn);
+						mPlayer2.start();
+						while(mPlayer2.isPlaying()){
+							android.os.SystemClock.sleep(100);
+						}
+					}catch(Exception e){
+						Log.d(TAG,"ERROR PLAYING");
+						e.printStackTrace();
 					}
-				}catch(Exception e){
-					Log.d(TAG,"ERROR PLAYING");
-					e.printStackTrace();
-				}
-			}}).start();						
+				}}).start();			
+		}
 	}
 	
 	private void playButtonSelectedSound(){
-		new Thread(new Runnable() {
-			public void run() {
-				try{
-					MediaPlayer mPlayer2 = MediaPlayer.create(gameHomeActivity, R.raw.next_back);
-					mPlayer2.start();
-					while(mPlayer2.isPlaying()){
-						android.os.SystemClock.sleep(100);
+		if (gameStatus.isSounds()){
+			new Thread(new Runnable() {
+				public void run() {
+					try{
+						MediaPlayer mPlayer2 = MediaPlayer.create(gameHomeActivity, R.raw.next_back);
+						mPlayer2.start();
+						while(mPlayer2.isPlaying()){
+							android.os.SystemClock.sleep(100);
+						}
+					}catch(Exception e){
+						Log.d(TAG,"ERROR PLAYING");
+						e.printStackTrace();
 					}
-				}catch(Exception e){
-					Log.d(TAG,"ERROR PLAYING");
-					e.printStackTrace();
-				}
-			}}).start();				
+				}}).start();	
+		}
 	}
 	
 	@Override
@@ -326,13 +336,17 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 		if (me.getAction() == MotionEvent.ACTION_MOVE) {
 			if (cartDist(501, 399, (int)me.getX(), (int)me.getY())<90){
 				// feeling of main button
-				mSurface_mainButton.setActive(true);
-				mSurface_mainButton.onTouchEvent(me);
+				if (gameStatus.isHaptics()){
+					mSurface_mainButton.setActive(true);
+					mSurface_mainButton.onTouchEvent(me);
+				}
 			}
 			if (showMenuButtons){
 				// If the main button is clicked you start feeling drag
-				mSurface_drag.setActive(true);
-				mSurface_drag.onTouchEvent(me);
+				if (gameStatus.isHaptics()){
+					mSurface_drag.setActive(true);
+					mSurface_drag.onTouchEvent(me);
+				}
 			}
 			int oldSelectedKey = selectedKey;
 			if (cartDist(501, 399, (int)me.getX(), (int)me.getY())>70){
@@ -349,7 +363,7 @@ public class GameHomeView extends SurfaceView implements SurfaceHolder.Callback{
 					selectedKey = MARKET;
 				else
 					selectedKey = 0;
-				if ((selectedKey>0)&&(oldSelectedKey!=selectedKey)){
+				if ((selectedKey>0)&&(oldSelectedKey!=selectedKey)&&(showMenuButtons)){
 					playSelectMenuItem();
 				}
 			}

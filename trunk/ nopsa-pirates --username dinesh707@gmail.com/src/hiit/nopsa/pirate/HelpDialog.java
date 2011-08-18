@@ -6,22 +6,19 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
-import android.widget.Toast;
-
 import android.widget.TextView;
-import android.view.Window;
-import android.view.accessibility.AccessibilityEvent;
 
+/**
+ * Contains text data about game instructions. This dialog inflates by the start screen "help" menu item.
+ * 
+ * @author Dinesh Wijekoon
+ */
 public class HelpDialog {
 	
 	private AlertDialog.Builder builder;
@@ -74,9 +71,6 @@ public class HelpDialog {
 		ImageView image = (ImageView) layout.findViewById(R.id.image);
 		image.setImageResource(R.drawable.captain);
 
-		//alertDialog.dismiss();
-		//GameStatus.getGameStatusObject().setInstructions(isChecked);
-		
 		builder = new AlertDialog.Builder(mContext);
 		builder.setView(layout);
 		alertDialog = builder.create();

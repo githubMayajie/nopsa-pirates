@@ -15,6 +15,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.Paint.Style;
+import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -136,6 +137,24 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 		}
 	}
 	
+	private void playButtonSelectedSound(){
+		if (GameStatus.getGameStatusObject().isSounds()){
+			new Thread(new Runnable() {
+				public void run() {
+					try{
+						MediaPlayer mPlayer2 = MediaPlayer.create(collectItemsActivity, R.raw.next_back);
+						mPlayer2.start();
+						while(mPlayer2.isPlaying()){
+							android.os.SystemClock.sleep(100);
+						}
+					}catch(Exception e){
+						Log.d(TAG,"ERROR PLAYING");
+						e.printStackTrace();
+					}
+				}}).start();				
+		}
+	}
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
 		if (me.getAction() == MotionEvent.ACTION_DOWN) {
@@ -145,6 +164,7 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 			}
 			if ((904<me.getX())&&(me.getX()<1004)&&(480<me.getY())&&(me.getY()<580)){
 				collectItemsActivity.finish();
+				playButtonSelectedSound();
 			}
 			
 			if ( 680< me.getX() && me.getX()<755 && 200<me.getY() && me.getY()<275)
@@ -209,19 +229,20 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 				moving_imgY = (int) me.getY();
 				if (scrolingStarted)
 					if ((me.getX()-scroll_val)>80){
-						// TODO Introduce one more image
-						// TODO delete last image
 						scroll_val = (int) me.getX();
 						Log.d(TAG,"============== Image Add New =====================");
 						currentLoaction = currentLoaction+1;
 					}
 				if (me.getY()>470){
-					mSurface_sticky.setActive(true);
-					mSurface_sticky.onTouchEvent(me);
+					if (GameStatus.getGameStatusObject().isHaptics()){
+						mSurface_sticky.setActive(true);
+						mSurface_sticky.onTouchEvent(me);
+					}
 				}
 		}
 		if (me.getAction() == MotionEvent.ACTION_UP) {
 			if ((me.getY()>470)&&(img_id>=0)&&(moving_url!=null)){
+				playButtonSelectedSound();
 				synchronized (this) {
 					_thread.setRunning(false);
 					img_id = -1;	
@@ -245,7 +266,6 @@ public class CollectItemsView extends SurfaceView implements SurfaceHolder.Callb
 	private void loadBitmaps(){
 		System.gc();
 		background = BitmapFactory.decodeResource(getResources(), R.drawable.blackship_background);
-		
 		manager = (EffectManager) collectItemsActivity.getSystemService(collectItemsActivity.EFFECT_SERVICE);
 		mSurface_sticky = new FeelableSurface(this.getContext(), manager, R.xml.eveidea_stickysurface_slide4);
 	}

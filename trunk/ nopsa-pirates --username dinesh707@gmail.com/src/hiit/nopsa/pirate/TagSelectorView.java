@@ -2,21 +2,16 @@ package hiit.nopsa.pirate;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import com.senseg.effect.EffectManager;
 import com.senseg.effect.FeelableSurface;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -25,17 +20,16 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.YuvImage;
 import android.graphics.Paint.Style;
-import android.graphics.Path;
-import android.graphics.RectF;
-import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.Toast;
 
+/**
+ * 
+ * @author Dinesh Wijekoon
+ */
 public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callback {
 
 	private final String TAG = "NOPSA-P";
@@ -47,8 +41,6 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 	private int selectedTag = -1;
 	private Bitmap icons;
 	private String tag_string="";
-	private int btn_state=0;
-	private int btn_lastY;
 	private URL url;
 	private boolean imageGlow = false;
 	private EffectManager manager;
@@ -161,16 +153,10 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 		cir.setColor(Color.RED);
 		
 		if (showfactor<0){
-			//Show Ok and Back Button
+			//Show Back Button
 			Paint icon_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-			icons = BitmapFactory.decodeResource(getResources(), R.drawable.ok_icon);
-			canvas.drawBitmap(icons, 904, 20, icon_paint);
 			icons = BitmapFactory.decodeResource(getResources(), R.drawable.back_icon);
-			canvas.drawBitmap(icons, 904, 140, icon_paint);
-			if (btn_state>0){
-				icons = BitmapFactory.decodeResource(getResources(), R.drawable.glow_ok);
-				canvas.drawBitmap(icons, 894, 10, icon_paint);
-			}
+			canvas.drawBitmap(icons, 904, 20, icon_paint);
 		}else{
 			int j = 1, i=0, k = 0;
 			if (showfactor==0){
@@ -195,8 +181,10 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 		// Controling Number of Tags shown in screen
 		if ((me.getAction() == MotionEvent.ACTION_MOVE)||(me.getAction() == MotionEvent.ACTION_DOWN)){
 			if ((me.getX()>570)&&(me.getY()>530)){
-				mSurface_dots.setActive(true);
-			    mSurface_dots.onTouchEvent(me);
+				if (GameStatus.getGameStatusObject().isHaptics()){
+					mSurface_dots.setActive(true);
+					mSurface_dots.onTouchEvent(me);
+				}
 				showfactor = ((int) (me.getX()-570)/34)+1;
 				if (me.getX()>920)
 					showfactor = 0;
@@ -204,7 +192,6 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 					showfactor = -1;
 			}
 		}
-		//TODO - Selecting the Dragging Tag
 		if(me.getAction() == MotionEvent.ACTION_DOWN){
 			if ((me.getX()>550)&&(me.getY()<530)&&(showfactor>=0)){
 				int j = 1, i=0, k = 0;
@@ -224,50 +211,22 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 			}
 			if (showfactor<0){
 				if ((904<me.getX())&&(me.getX()<1024)&&(20<me.getY())&&(me.getY()<120)){
-					// OK Button Clicked
-					if (btn_state==0){
-						btn_state = 1;
-						btn_lastY = (int) me.getY();
-					}
-				}
-				if ((904<me.getX())&&(me.getX()<1024)&&(140<me.getY())&&(me.getY()<240)){
-					// Back Button Clicked
+					// Cancel Button Clicked
 					keyboardHomeActivity.finish();
 				}
 			}
 			
 		}
-		//TODO - Moving the Selected Tag
+		//Moving the Selected Tag
 		if(me.getAction() == MotionEvent.ACTION_MOVE){
 			if (selectedTag>=0){
 				tags.get(selectedTag).x = (int) me.getX();
 				tags.get(selectedTag).y = Math.min(520,(int) me.getY());
 				if (me.getX()<550){
 					imageGlow = true;
-					//TODO ADD EFFECTS
-					mSurface_sticky.setActive(true);
-					mSurface_sticky.onTouchEvent(me);
-				}
-			}
-			if (showfactor<0){
-				if ((btn_state==1)&&((int) me.getY()>btn_lastY)){
-					btn_state = 2;
-					btn_lastY = (int) me.getY();
-				}
-				if ((btn_state==2)&&((int) me.getY()<btn_lastY)){
-					Log.d(TAG,"OK Clicked");
-					btn_state = 0;
-					if(tag_string.length()>0){
-						Collectable c  = new Collectable();
-						c.setIcon_url(url.toString().replace("photo", "square")); 		
-						c.setTag(tag_string);
-						c.setScore(0);
-						c.setLast_img_marked(1);
-						GameStatus.getGameStatusObject().addCollectableFromId(keyboardHomeActivity.getIntent().getExtras().getInt("type"), c);
-						keyboardHomeActivity.finish();
-					}
-					else{
-						Toast.makeText(keyboardHomeActivity,"No Tags Selected !",Toast.LENGTH_SHORT).show();
+					if (GameStatus.getGameStatusObject().isHaptics()){
+						mSurface_sticky.setActive(true);
+						mSurface_sticky.onTouchEvent(me);
 					}
 				}
 			}
@@ -286,7 +245,6 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 				keyboardHomeActivity.finish();
 			}
 			selectedTag = -1;
-			btn_state = 0;
 			imageGlow = false;
 		}
 		
@@ -318,11 +276,6 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
 	    }	
 	}
 	
-	private int getAngle(int x1, int y1, int x2, int y2){
-		double theta = Math.atan2((y2-y1),(x2-x1));
-		theta = theta*57.2957795;
-		return (int) theta;
-	}
 	private int cartDist(int x1, int y1, int x2, int y2){
 		 return (int) Math.sqrt((Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2)));
 	}
@@ -382,9 +335,6 @@ public class TagSelectorView extends SurfaceView implements SurfaceHolder.Callba
     	                _tagSelectorView.onDraw(c);
     	            }
     	        } finally {
-    	            // do this in a finally so that if an exception is thrown
-    	            // during the above, we don't leave the Surface in an
-    	            // inconsistent state
     	            if (c != null) {
     	                _surfaceHolder.unlockCanvasAndPost(c);
     	            }

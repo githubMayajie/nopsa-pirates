@@ -3,26 +3,15 @@ package hiit.nopsa.pirate;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
-import com.senseg.effect.EffectManager;
-import com.senseg.effect.FeelableSurface;
-import com.senseg.effect.effects.DragAndDropCollection;
-import com.senseg.effect.effects.ScrollCollection;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.BitmapFactory;
-
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -30,10 +19,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
+/**
+ * 
+ * 
+ * @author Dinesh Wijekoon
+ */
 public class MainActivity extends Activity {
     
 	private HomeView homeView;
@@ -46,10 +38,10 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG,"MainActivity Started");
-        //Remove title bar
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        //Remove notification bar
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        if (!isOnline())
+        	showExitOption();
         GameStatus.getGameStatusObject().loadGameData(this);
         if (GameStatus.getGameStatusObject().getUser_id()==0)
         	popInputScreenToGetName();
@@ -58,7 +50,30 @@ public class MainActivity extends Activity {
         mainActivity = this;
 	}
 	
+	private boolean isOnline() {
+		 ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		 boolean output = false;
+		 try{
+			output = cm.getActiveNetworkInfo().isConnectedOrConnecting();
+		 }catch(Exception e){}
+		 return output;
+	}
+	
+	private void showExitOption(){
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);                 
+		alert.setMessage("Game needs Internet Connection, Please Check your Interent Connection first.");                
+		alert.setPositiveButton("Exit", new DialogInterface.OnClickListener() {  
+			public void onClick(DialogInterface dialog, int whichButton) {  
+				MainActivity.this.finish();
+			}  
+		});  
+		alert.show();
+	}
+	
 	public void  popInputScreenToGetName(){
+		GameStatus.getGameStatusObject().setUser_name("temp_user");
+		// At this version we are not saving data from user. This can be used later.
+		/*
 		Log.d(TAG,"ENTER NAME and update Game Data with it --->");
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);                 
 		alert.setMessage("What will be your Pirate Name Cap'n?");                
@@ -79,12 +94,12 @@ public class MainActivity extends Activity {
 			}  
 		});  
 		alert.show();
+		*/
 	}
 	
 	public void getUserIdFromServer(){
 		//TODO get a user_id from server -- send user_name to server and get the user_id
 		//     then save the user_id into GameStatus as well
-		
 		try {
 			String url_str = "http://ec2-107-20-212-167.compute-1.amazonaws.com/nopsa_game/user.php?name="+name_enterd;
 			Log.d(TAG,url_str);
@@ -104,29 +119,29 @@ public class MainActivity extends Activity {
 		}catch (Exception e){
 			Log.d(TAG,"User Id retrival FAILED");
 		}
-		
 	}
 	
 	private void playSound(){
-		new Thread(new Runnable() {
-			public void run() {
-				try{
-					mPlayer = MediaPlayer.create(MainActivity.this, R.raw.screen1_intro);
-					mPlayer.setLooping(true);
-					mPlayer.start();
-					while(mPlayer.isPlaying()){
-						android.os.SystemClock.sleep(100);
+		if (GameStatus.getGameStatusObject().isSounds()){
+			new Thread(new Runnable() {
+				public void run() {
+					try{
+						mPlayer = MediaPlayer.create(MainActivity.this, R.raw.screen1_intro);
+						mPlayer.setLooping(true);
+						mPlayer.start();
+						while(mPlayer.isPlaying()){
+							android.os.SystemClock.sleep(100);
+						}
+					}catch(Exception e){
+						Log.d(TAG,"ERROR PLAYING");
+						e.printStackTrace();
 					}
-				}catch(Exception e){
-					Log.d(TAG,"ERROR PLAYING");
-					e.printStackTrace();
-				}
-			}}).start();
+				}}).start();
+		}
 	}
 	
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		playSound();
 		super.onResume();
 	}
@@ -149,5 +164,52 @@ public class MainActivity extends Activity {
 		super.onPause();
 	}
 	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.options, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle item selection
+	    switch (item.getItemId()) {
+	    case R.id.sound:
+	    	if (GameStatus.getGameStatusObject().isSounds()){
+	    		GameStatus.getGameStatusObject().setSounds(false);
+	    		Toast.makeText(this,"Sound OFF", Toast.LENGTH_SHORT).show();	
+	    		if (mPlayer!=null){
+	    			mPlayer.stop();
+	    			mPlayer = null;
+	    		}
+	    	}else{
+	    		GameStatus.getGameStatusObject().setSounds(true);
+	    		Toast.makeText(this,"Sound ON", Toast.LENGTH_SHORT).show();	
+	    		playSound();
+	    	}
+	        return true;
+	    case R.id.help:
+	    	if (GameStatus.getGameStatusObject().getInstructions()){
+	    		GameStatus.getGameStatusObject().setInstructions(false);
+	    		Toast.makeText(this,"Help Dialogs OFF", Toast.LENGTH_SHORT).show();	
+	    	}else{
+	    		GameStatus.getGameStatusObject().setInstructions(true);
+	    		Toast.makeText(this,"Help Dialogs ON", Toast.LENGTH_SHORT).show();	
+	    	}
+	        return true;
+	    case R.id.haptics:
+	    	if (GameStatus.getGameStatusObject().isHaptics()){
+	    		GameStatus.getGameStatusObject().setHaptics(false);
+	    		Toast.makeText(this,"Haptics OFF", Toast.LENGTH_SHORT).show();	
+	    	}else{
+	    		GameStatus.getGameStatusObject().setHaptics(true);
+	    		Toast.makeText(this,"Haptics ON", Toast.LENGTH_SHORT).show();	
+	    	}
+	    	return true;
+	    default:
+	        return super.onOptionsItemSelected(item);
+	    }
+	}
 
 }

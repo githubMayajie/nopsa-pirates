@@ -8,10 +8,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 
-
 import android.content.Context;
 import android.util.Log;
 
+/**
+ * A singleton class which holds all the data related to the game.
+ * Values are loaded at the game start and saves at the end of the game
+ * 
+ * @author Dinesh Wijekoon
+ */
 public class GameStatus {
 	private String TAG = "NOPSA-P";
 	
@@ -92,13 +97,6 @@ public class GameStatus {
 	public void setHaptics(boolean haptics) {
 		this.haptics = haptics;
 	}
-	public ArrayList<Collectable> getCollectablesToMarkBoundariesById(Collectable col){
-		//col.getLast_img_marked()
-		//col.getTag()
-		
-		//TODO
-		return null;
-	}
 	public ArrayList<Collectable> getCollectableFromId(int id){
 		switch (id) {
 		case 0:
@@ -110,7 +108,6 @@ public class GameStatus {
 		}
 		return null;
 	}
-	//TODO
 	public boolean removeItemFromTypeAndId(int type, int id){
 		synchronized (gameStatus) {
 			switch (type) {
@@ -146,7 +143,6 @@ public class GameStatus {
 				break;
 			}
 		}
-	
 		return false;
 	}
 	
@@ -271,16 +267,7 @@ public class GameStatus {
 	
 	private void startAutoSaving(final Context context){
 	//TODO
-		/*	new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (gameIsRunning) {
-					GameStatus.getGameStatusObject().saveGameData(context);
-					android.os.SystemClock.sleep(2);
-				}
-			}
-		}).start();
-	*/
+	
 	}
 	
 	// Load Game Status

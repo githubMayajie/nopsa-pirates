@@ -8,23 +8,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
 import com.senseg.effect.EffectManager;
 import com.senseg.effect.FeelableSurface;
-
-import hiit.nopsa.pirate.CollectItemsView.ViewControllerThread;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -32,15 +17,18 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Typeface;
 import android.graphics.Paint.Style;
-import android.media.MediaPlayer;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+/**
+ * 
+ * @author Dinesh Wijekoon
+ */
 public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Callback{
 
 	private Activity populateItemsActivity;
@@ -50,7 +38,7 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 	private PopulateItemsImageManager popImageManager = null;
 	private Collectable selectedColectable = null;
 	private int selectedCollectableXPosition = 0;
-	private Bitmap background,chest_icon,trash_icon,back_icon,plus1;
+	private Bitmap background,trash_icon,back_icon,plus1;
 	private Bitmap bitmap=null;
 	private boolean imageDragging = false;
 	private int imgDrag_x = 0;
@@ -108,7 +96,6 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 				canvas.drawRect(15+(count*90), 485, 100+(count*90), 570, glow_paint);
 				canvas.drawBitmap(collectable.getIcon_bitmap(), 20+(count*90), 490 , back_paint);
 				canvas.drawText(""+collectable.getScore(),45+(count*90), 585, text_paint);
-				Log.d(TAG,"COUNT>>>>>>>>>>>>> "+count);
 				count = count+1;
 				if (count>8)
 					break;
@@ -129,8 +116,6 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 				canvas.drawBitmap(bitmap,50+imgDrag_x,50, back_paint);
 			}
 			//=====Draw Next Image Icon
-			//canvas.drawCircle(850, 120, 70, glow_paint);
-			//canvas.drawBitmap(chest_icon, 800, 70, back_paint);
 			canvas.drawCircle(850, 320, 70, glow_paint);
 			canvas.drawBitmap(trash_icon, 800, 270, back_paint);	
 			
@@ -146,16 +131,13 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		boandary_paint.setStyle(Style.FILL);
 		boandary_paint.setColor(Color.GREEN);
 		if ((boundary!=null)&&(imgDrag_x==0)){
-			//Log.d(TAG,"Boundary is NOT NULL");
 			for(int i=0;i<boundary.size();i++){
-				//Log.d(TAG,"X: "+boundary.get(i)[0]+" Y: "+boundary.get(i)[1]);
 				canvas.drawCircle(boundary.get(i)[0], boundary.get(i)[1], 5, boandary_paint);
 			}
 			boandary_paint.setColor(Color.RED);
 			boandary_paint.setStrokeWidth(5);
 			if (!anmatePlus1)
 				canvas.drawCircle(boundary.get(0)[0], boundary.get(0)[1], 25, boandary_paint);
-			//Log.d(TAG,""+boundary.size());
 		}
 		}catch(Exception e){
 			Log.d(TAG,"EXCEPTION: Boundray drawing failed");
@@ -210,8 +192,6 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 	private void animatePlusOne(){
 		//selectedCollectableXPosition
 		anmatePlus1 = true;
-		//new Thread(new Runnable() {
-		//	public void run() {
 		plus1_x = boundary.get(0)[0];
 		plus1_y = boundary.get(0)[1];
 				while (plus1_y<550){
@@ -223,7 +203,6 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 					android.os.SystemClock.sleep(10);
 				}
 				anmatePlus1 = false;
-		//	}}).start();
 	}
 	
 	public boolean onTouchEvent(MotionEvent me) {
@@ -252,18 +231,17 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 		if (me.getAction() == MotionEvent.ACTION_MOVE){
 			if (imageDragging){
 				//TODO ADD HAPTIC
-				mSurface_dragImg.setActive(true);
-				mSurface_dragImg.onTouchEvent(me);
+				if (gameStatus.isHaptics()){
+					mSurface_dragImg.setActive(true);
+					mSurface_dragImg.onTouchEvent(me);
+				}
 				imgDrag_x = (int)me.getX()-bitmap.getWidth()-50;
-				/*
-				if (cartDist((int)me.getX(), (int)me.getY(), 850, 120)<75){
-					squarePaint = new Paint();
-					squarePaint.setColor(Color.GREEN);
-				}*/
 				if (cartDist((int)me.getX(), (int)me.getY(), 850, 320)<75){
 					squarePaint = new Paint();
 					squarePaint.setColor(Color.RED);
-				}				
+				}
+				else 
+					squarePaint = null;
 			}
 			if (boundaryMarkingOn){
 				//Bounadry Marking
@@ -286,7 +264,12 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 				
 				if (boundary.size()>4)
 					if (cartDist(boundary.get(0)[0], boundary.get(0)[1], a[0], a[1])<25){
+					// When boundary reachers back to the red starting dot
 						animatePlusOne();
+						Vibrator v = (Vibrator) populateItemsActivity.getSystemService(Context.VIBRATOR_SERVICE);
+						long[] pattern = {100,2};
+						v.vibrate(pattern, 4);
+						
 						// When ever player reachers to close the boundary as a circle system auto uploads data and present the
 						// next image
 						selectedColectable.setLast_img_marked(selectedColectable.getLast_img_marked()+1);
@@ -328,7 +311,6 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 					}
 				}
 			if (squarePaint!=null){
-				String boundary_str = "";
 				if (squarePaint.getColor() == Color.RED){
 					//TODO -- Mark Image as Not useful
 					selectedColectable.setLast_img_marked(selectedColectable.getLast_img_marked()+1);
@@ -357,34 +339,6 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 					boundary = null;
 					//===End of UPDATE MINUS
 				}
-				/*
-				else if (squarePaint.getColor() == Color.GREEN){
-					//TODO -- Upload Image Bounderies to server
-					selectedColectable.setLast_img_marked(selectedColectable.getLast_img_marked()+1);
-					Log.d(TAG,"Image Droped on GREEN "+selectedColectable.getLast_img_marked());
-					//==== Update Boundaries to Server=====================
-					for (int i=0;i<boundary.size();i++){
-						boundary_str = boundary_str + (boundary.get(i)[0]/scaledVal)+","+(boundary.get(i)[1]/scaledVal)+";";
-					}
-					String url_str = "http://ec2-107-20-212-167.compute-1.amazonaws.com/nopsa_game/boundary_update.php";
-					//POSTING THE DATA===========================================
-					try{
-						String urlParameters =
-						 	"id=" + URLEncoder.encode(imageId, "UTF-8") +
-						 	"&boundary="+ URLEncoder.encode(boundary_str, "UTF-8");
-						this.excutePost(url_str, urlParameters);
-						Log.d(TAG,"POST WORKED !! ================= ");
-						selectedColectable.setScore(selectedColectable.getScore()+1); 
-						// Add a point to Total food score
-						if (collectableType == 2)
-							gameStatus.setTotal_food_score(gameStatus.getTotal_food_score()+1);
-					}catch(Exception e){
-						Log.d(TAG,"POST did not work ");
-					}
-					
-					// END OF POSTING DATA=======================================
-					boundary = null;
-				}*/
 			}
 			imgDrag_x = 0;
 			imageDragging = false;
@@ -441,9 +395,7 @@ public class PopulateItemsView extends SurfaceView implements SurfaceHolder.Call
 	
 	private void loadBitmaps(){
 		System.gc();
-		//background = BitmapFactory.decodeResource(getResources(), R.drawable.train_background);
 		background = BitmapFactory.decodeResource(getResources(), R.drawable.blackship_background);
-		chest_icon = BitmapFactory.decodeResource(getResources(), R.drawable.chest_icon);
 		trash_icon = BitmapFactory.decodeResource(getResources(), R.drawable.trash_icon);
 		back_icon = BitmapFactory.decodeResource(getResources(), R.drawable.back_icon);
 		plus1 = BitmapFactory.decodeResource(getResources(), R.drawable.plus1);
